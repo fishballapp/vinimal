@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <!-- The toolbar size, drawn on the 16 px grid and filling it, as Chrome's toolbar icons do: too
+       small for the j, so the key and its bump. The face is most of it, since the ink edge
+       disappears on a dark toolbar. -->
+  <rect width="16" height="16" rx="3.5" fill="#1d2127"/>
+  <rect x="1" y="0.75" width="14" height="12.75" rx="2.75" fill="#f7f5ef"/>
+  <rect x="4.5" y="9.25" width="7" height="2" rx="1" fill="#e5a332"/>
+</svg>

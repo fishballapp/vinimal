@@ -1,0 +1,39 @@
+{
+  "name": "@vinimal/extension",
+  "version": "0.1.0",
+  "private": true,
+  "license": "GPL-3.0-only",
+  "type": "module",
+  "description": "Vinimal: a Chrome (MV3) extension with the few Vimium keys people use, made to look good.",
+  "scripts": {
+    "dev": "vite build --watch",
+    "build": "vite build",
+    "build:local": "vite build && mkdir -p ~/.chrome-extensions-dev/vinimal && rsync -a --delete dist/ ~/.chrome-extensions-dev/vinimal/",
+    "build:release": "vite build --mode release",
+    "zip": "pnpm build:release && node scripts/zip.ts",
+    "icons": "node scripts/build-icons.ts",
+    "test": "vitest run",
+    "check:effect": "effect-tsgo diagnostics --project tsconfig.json --format text"
+  },
+  "dependencies": {
+    "@fishballapps/cn": "workspace:*",
+    "@fishballapps/extension-licence": "workspace:*",
+    "@fishballapps/utils": "workspace:*",
+    "effect": "catalog:",
+    "react": "catalog:web",
+    "react-dom": "catalog:web"
+  },
+  "devDependencies": {
+    "@fishballapps/vite-plugins": "workspace:*",
+    "@tailwindcss/vite": "catalog:",
+    "@types/chrome": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:web",
+    "@types/react-dom": "catalog:web",
+    "@vitejs/plugin-react": "catalog:",
+    "sharp": "catalog:",
+    "tailwindcss": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}

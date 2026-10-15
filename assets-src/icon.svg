@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <!-- Vinimal's mark: a keycap seen from above, its legend a j, with the home-row bump that tells
+       a touch typist's finger where it is. The 32 px and larger sizes. -->
+  <rect x="8" y="10" width="112" height="110" rx="24" fill="#1d2127"/>
+  <rect x="18" y="14" width="92" height="88" rx="16" fill="#f7f5ef"/>
+  <circle cx="69" cy="34" r="7.5" fill="#1d2127"/>
+  <path d="M69 50v24c0 9-6 13-14 13" fill="none" stroke="#1d2127" stroke-width="12" stroke-linecap="round"/>
+  <rect x="49" y="90" width="30" height="6" rx="3" fill="#e5a332"/>
+</svg>

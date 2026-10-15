@@ -1,0 +1,268 @@
+/*
+  Everything Vinimal draws on a page, inside a closed shadow root so page CSS can't reach it.
+  A hint is a keycap inverse to the page under it: ink on a light page, paper on a dark one (the
+  host's data-tone, read from the page when the overlay is shown).
+*/
+
+:host {
+  /* A light page: ink caps, paper dialogs. */
+  --cap: oklch(0.22 0.012 260);
+  --cap-side: oklch(0.12 0.01 260);
+  --rim: oklch(1 0 0 / 0.16);
+  --legend: oklch(0.97 0.006 95);
+  --shadow: oklch(0 0 0 / 0.38);
+
+  --paper: oklch(0.99 0.003 95);
+  --ink: oklch(0.22 0.012 260);
+  --ink-muted: oklch(0.45 0.014 260);
+  --rule: oklch(0.89 0.006 260);
+}
+
+/* A dark page: paper caps, ink dialogs. */
+:host([data-tone="dark"]) {
+  --cap: oklch(0.97 0.006 95);
+  --cap-side: oklch(0.78 0.01 95);
+  --rim: oklch(0 0 0 / 0.22);
+  --legend: oklch(0.2 0.012 260);
+  --shadow: oklch(0 0 0 / 0.55);
+
+  --paper: oklch(0.24 0.012 260);
+  --ink: oklch(0.95 0.006 95);
+  --ink-muted: oklch(0.76 0.012 260);
+  --rule: oklch(0.34 0.012 260);
+}
+
+.hints {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+
+.cap {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px 4px;
+  border-radius: 4px;
+  background: var(--cap);
+  color: var(--legend);
+  font:
+    700 11px / 1 ui-monospace,
+    "SF Mono",
+    Menlo,
+    Consolas,
+    monospace;
+  text-transform: uppercase;
+  white-space: nowrap;
+  box-shadow:
+    inset 0 0 0 1px var(--rim),
+    0 1.5px 0 0 var(--cap-side),
+    0 3px 8px -2px var(--shadow);
+  animation: cap-in 90ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cap[hidden] {
+  display: none;
+}
+
+.letter {
+  min-width: 0.62em;
+  text-align: center;
+}
+
+/* Letters already typed step back; the next one to type stays lit. */
+.letter.typed {
+  opacity: 0.4;
+}
+
+/* With ⌘ (Ctrl) tapped, every cap shows the hint will open in a new tab. */
+.new-tab-mark {
+  display: none;
+  width: 8px;
+  height: 8px;
+  margin-left: 1px;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  fill: none;
+}
+
+.hints.new-tab .new-tab-mark {
+  display: block;
+}
+
+/* The chosen key goes down as the others leave. */
+.cap.pressed {
+  transform: translateY(1px);
+  box-shadow:
+    inset 0 0 0 1px var(--rim),
+    0 0.5px 0 0 var(--cap-side),
+    0 1px 3px -1px var(--shadow);
+}
+
+.hints.leaving .cap:not(.pressed) {
+  opacity: 0;
+}
+
+.hints.leaving .cap {
+  transition:
+    opacity 120ms ease-out,
+    transform 60ms ease-out;
+}
+
+@keyframes cap-in {
+  from {
+    opacity: 0;
+    transform: translateY(1px);
+  }
+}
+
+/*
+  Vinimal's dialogs (the keys have stopped; `?`'s keys): centred over a dimmed page, carrying the
+  mark and the name so they never read as the site's own.
+*/
+.modal {
+  /* The dialog itself is only the frame for the panel: centred by the browser, no box of its own. */
+  max-width: none;
+  max-height: none;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  overflow: visible;
+  pointer-events: auto;
+  outline: none;
+}
+
+.modal::backdrop {
+  background: oklch(0 0 0 / 0.45);
+  animation: backdrop-in 140ms ease-out;
+}
+
+.dialog {
+  box-sizing: border-box;
+  /* 24 px clear of the window's edges on each side. */
+  max-width: calc(100vw - 48px);
+  max-height: calc(100vh - 48px);
+  border-radius: 14px;
+  background: var(--paper);
+  color: var(--ink);
+  font:
+    400 14px / 1.5 system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  box-shadow:
+    0 0 0 1px var(--rule),
+    0 24px 64px -16px oklch(0 0 0 / 0.55);
+  outline: none;
+  animation: dialog-in 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.brand svg {
+  width: 22px;
+  height: 22px;
+}
+
+.notice {
+  width: 380px;
+  padding: 20px 22px;
+}
+
+.notice .brand {
+  margin-bottom: 14px;
+}
+
+.notice-title {
+  margin: 0 0 4px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.notice-body {
+  margin: 0;
+  color: var(--ink-muted);
+}
+
+.notice-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.notice button {
+  all: unset;
+  box-sizing: border-box;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font:
+    500 13px / 1.2 system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  cursor: pointer;
+}
+
+.notice .primary {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.notice .quiet {
+  color: var(--ink-muted);
+}
+
+.notice .quiet:hover {
+  color: var(--ink);
+}
+
+.notice button:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+/* `?`: the Keys page itself, in a frame filling the dialog. */
+.help {
+  width: 760px;
+  height: 820px;
+  overflow: hidden;
+}
+
+.help iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+@keyframes backdrop-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cap,
+  .modal::backdrop,
+  .dialog {
+    animation: none;
+  }
+  .hints.leaving .cap {
+    transition: none;
+  }
+}

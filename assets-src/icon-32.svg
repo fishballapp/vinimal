@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <!-- The toolbar's 32 px (16 px at 2×): the mark filling its canvas, with a larger face than the
+       store icon's so it reads at the size of its neighbours. -->
+  <rect width="128" height="128" rx="26" fill="#1d2127"/>
+  <rect x="6" y="4" width="116" height="106" rx="20" fill="#f7f5ef"/>
+  <circle cx="70" cy="27" r="9" fill="#1d2127"/>
+  <path d="M70 46v26c0 11-7 16-17 16" fill="none" stroke="#1d2127" stroke-width="14" stroke-linecap="round"/>
+  <rect x="46" y="94" width="36" height="7" rx="3.5" fill="#e5a332"/>
+</svg>

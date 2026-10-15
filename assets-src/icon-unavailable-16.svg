@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <!-- The toolbar size: the disabled key, cut away round a prohibition sign. -->
+  <defs>
+    <mask id="clear">
+      <rect width="16" height="16" fill="#fff"/>
+      <circle cx="10.75" cy="10.75" r="5.75" fill="#000"/>
+    </mask>
+  </defs>
+  <rect x="0.75" y="0.75" width="14.5" height="14.5" rx="3.25" fill="none" stroke="#8a8f98" stroke-width="1.5" mask="url(#clear)"/>
+  <circle cx="10.75" cy="10.75" r="4.5" fill="none" stroke="#d6453d" stroke-width="1.5"/>
+  <path d="M7.6 7.6 13.9 13.9" stroke="#d6453d" stroke-width="1.5"/>
+</svg>

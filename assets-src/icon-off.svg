@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <!-- Disabled on this site, at 32 px: the same key, hollow and grey, filling the canvas. -->
+  <rect x="5" y="5" width="118" height="118" rx="24" fill="none" stroke="#8a8f98" stroke-width="10"/>
+  <circle cx="70" cy="30" r="9" fill="#8a8f98"/>
+  <path d="M70 49v26c0 11-7 16-17 16" fill="none" stroke="#8a8f98" stroke-width="13" stroke-linecap="round"/>
+  <rect x="46" y="98" width="36" height="7" rx="3.5" fill="#8a8f98"/>
+</svg>

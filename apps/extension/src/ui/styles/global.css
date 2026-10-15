@@ -1,0 +1,114 @@
+@import "tailwindcss";
+
+/*
+  Vinimal's page tokens. Ink and paper neutrals, flipped by the system colour scheme
+  (an extension page follows Chrome), mapped into Tailwind with `@theme inline` so markup never
+  needs `dark:`. The four finger colours mark keys, the way a touch-typing chart does, and nothing
+  else.
+*/
+
+:root {
+  --paper: oklch(0.985 0.003 95);
+  --card: oklch(1 0 0);
+  --sunken: oklch(0.955 0.005 95);
+  --rule: oklch(0.9 0.006 260);
+  --input: oklch(0.84 0.008 260);
+
+  --ink: oklch(0.22 0.012 260);
+  --ink-muted: oklch(0.47 0.014 260);
+  --ink-faint: oklch(0.72 0.01 260);
+
+  --key: oklch(1 0 0);
+  --key-side: oklch(0.84 0.008 260);
+  --key-idle: oklch(0.955 0.004 260);
+
+  --index: oklch(0.72 0.15 72);
+  --middle: oklch(0.62 0.15 152);
+  --ring: oklch(0.6 0.13 245);
+  --pinky: oklch(0.6 0.17 352);
+
+  --notice: oklch(0.95 0.045 82);
+  --notice-ink: oklch(0.4 0.08 65);
+  --destructive: oklch(0.54 0.17 27);
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: oklch(0.2 0.008 260);
+    --card: oklch(0.24 0.01 260);
+    --sunken: oklch(0.175 0.008 260);
+    --rule: oklch(0.32 0.012 260);
+    --input: oklch(0.42 0.014 260);
+
+    --ink: oklch(0.95 0.005 95);
+    --ink-muted: oklch(0.74 0.012 260);
+    --ink-faint: oklch(0.48 0.012 260);
+
+    --key: oklch(0.3 0.012 260);
+    --key-side: oklch(0.15 0.008 260);
+    --key-idle: oklch(0.235 0.01 260);
+
+    --index: oklch(0.8 0.15 80);
+    --middle: oklch(0.76 0.15 152);
+    --ring: oklch(0.74 0.12 240);
+    --pinky: oklch(0.74 0.14 350);
+
+    --notice: oklch(0.3 0.05 75);
+    --notice-ink: oklch(0.9 0.07 82);
+    --destructive: oklch(0.72 0.14 25);
+    color-scheme: dark;
+  }
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-card: var(--card);
+  --color-sunken: var(--sunken);
+  --color-rule: var(--rule);
+  --color-input: var(--input);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-faint: var(--ink-faint);
+  --color-key: var(--key);
+  --color-key-side: var(--key-side);
+  --color-key-idle: var(--key-idle);
+  --color-index: var(--index);
+  --color-middle: var(--middle);
+  --color-ring: var(--ring);
+  --color-pinky: var(--pinky);
+  --color-notice: var(--notice);
+  --color-notice-ink: var(--notice-ink);
+  --color-destructive: var(--destructive);
+
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* Key legends and hostnames: things typed exactly. */
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+
+html {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+::selection {
+  background: color-mix(in oklch, var(--index) 40%, transparent);
+}
+
+@layer base {
+  :where(a[href], button, [role="button"]):not(:disabled, [aria-disabled="true"]) {
+    cursor: pointer;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <!-- Can't run on this page, at 32 px: the disabled key with a prohibition sign, the key cut away
+       round it. -->
+  <defs>
+    <mask id="clear">
+      <rect width="128" height="128" fill="#fff"/>
+      <circle cx="94" cy="94" r="38" fill="#000"/>
+    </mask>
+  </defs>
+  <g mask="url(#clear)">
+    <rect x="5" y="5" width="118" height="118" rx="24" fill="none" stroke="#8a8f98" stroke-width="10"/>
+    <circle cx="60" cy="30" r="9" fill="#8a8f98"/>
+    <path d="M60 49v26c0 11-7 16-17 16" fill="none" stroke="#8a8f98" stroke-width="13" stroke-linecap="round"/>
+  </g>
+  <circle cx="94" cy="94" r="27" fill="none" stroke="#d6453d" stroke-width="10"/>
+  <path d="M75 75 113 113" stroke="#d6453d" stroke-width="10"/>
+</svg>
