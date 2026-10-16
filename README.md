@@ -39,6 +39,19 @@ yearly from $5 / £5 / €5. Licensed under [GPL-3.0](LICENSE).
 - Vinimal's site, vinimal.fishball.app, may ask whether Vinimal is on there, so it can say whose
   keys it's answering. No other page can ask, and nothing else is answered.
 
+## For site owners
+
+A site with keyboard shortcuts of its own can keep Vinimal off its pages by declaring it in the
+page's `<head>`:
+
+```html
+<meta name="vinimal" content="off">
+```
+
+Vinimal then takes none of its keys there and shows no hints, dialogs or notices. Its toolbar icon
+says the site turns it off, and a click on the icon can't turn Vinimal back on there. Each frame
+reads its own document, and a tag added or removed after the page loads is honoured on the next key.
+
 ## Building
 
 Needs Node 26 or later and pnpm.

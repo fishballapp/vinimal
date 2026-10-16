@@ -1,4 +1,5 @@
 import { loadLicensing } from '@fishballapps/extension-licence/store';
+import { isDeclaredOff } from '../declaration';
 import { createHintFrame } from '../hints/frame';
 import { type HintSession, startHintSession } from '../hints/session';
 import { repeats } from '../keys/commands';
@@ -107,12 +108,30 @@ const toggleHelp = () => {
 /** Whether this copy still belongs to the installed extension; an update cuts the old one off. */
 const isConnected = () => chrome.runtime?.id !== undefined;
 
+/**
+ * The page declares Vinimal off, so whatever Vinimal had showing in this frame goes.
+ * ponytail: a frame whose own document has no tag still runs its keys inside a tagged page, as
+ * each frame decides from its own document; its `?` finds the top frame silent, and its hints
+ * find no labels there.
+ */
+const endHere = () => {
+  session?.end();
+  session = undefined;
+  closeDialog();
+  scroller.release();
+  void hintFrame.handle({ type: 'hints-end' });
+};
+
 addEventListener(
   'keydown',
   event => {
     if (!event.isTrusted) return;
     if (!isConnected()) {
       standDown();
+      return;
+    }
+    if (isDeclaredOff(document)) {
+      endHere();
       return;
     }
     if (session !== undefined) {
@@ -232,6 +251,11 @@ const onMessage = (
   sendResponse: (reply: unknown) => void,
 ) => {
   if (sender.id !== chrome.runtime.id) return false;
+  // A tagged page answers no frame's request, so the frame asking hears nothing back.
+  if (isDeclaredOff(document)) {
+    endHere();
+    return false;
+  }
   switch (message.type) {
     case 'show-notice': {
       const reason = currentStoppedReason();
@@ -286,3 +310,30 @@ const standDown = () => {
 };
 
 addEventListener(TAKEOVER, standDown, { signal });
+
+// The top frame tells the worker whether its page declares Vinimal off, once the page is read, so
+// the toolbar icon can show it. A copy injected into a page already read reports at once, a page
+// restored from the back/forward cache reports again, as its navigation cleared the answer, and a
+// prerendered page waits until it's shown, so it never speaks for the page still in the tab.
+// ponytail: keys see a tag a single-page app adds later, but the icon only learns it on the next
+// navigation.
+const reportDeclaration = () => {
+  if (window !== window.top) return;
+  if (document.prerendering) {
+    document.addEventListener('prerenderingchange', reportDeclaration, { once: true, signal });
+    return;
+  }
+  void sendToWorker({ type: 'page-declaration', isDeclaredOff: isDeclaredOff(document) });
+};
+if (document.readyState === 'loading') {
+  addEventListener('DOMContentLoaded', reportDeclaration, { once: true, signal });
+} else {
+  reportDeclaration();
+}
+addEventListener(
+  'pageshow',
+  event => {
+    if (event.persisted) reportDeclaration();
+  },
+  { signal },
+);
