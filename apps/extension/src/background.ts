@@ -5,12 +5,6 @@ import {
   startLicenceAlarm,
 } from '@fishballapps/extension-licence/worker';
 import { showIconState, showIconStateEverywhere, siteOfTab } from './action/icon';
-import {
-  forgetOtherDocuments,
-  forgetTab,
-  isTabDeclaredOff,
-  setTabDeclaration,
-} from './declaration';
 import { createLabelPool, type LabelPool } from './hints/labels';
 import { licenceServer } from './licence/polar';
 import {
@@ -21,30 +15,24 @@ import {
   type WorkerMessage,
   type WorkerReply,
 } from './messages';
-import { answerSite } from './site-status';
 import { hostnamesIn, isSiteDisabled, setSiteDisabled } from './sites';
 
 // The service worker: the toolbar icon and its menu, the hint session's go-between for a tab's
-// frames, the licence check, and the answer to Vinimal's site. Every listener is registered
-// synchronously at the top level, so Chrome can wake the worker for any of them.
+// frames, and the licence check. Every listener is registered synchronously at the top level, so
+// Chrome can wake the worker for any of them.
 
 // --- The toolbar icon: a click disables or enables the site.
 
 chrome.action.onClicked.addListener(async ({ id }) => {
   if (id === undefined) return;
-  // A page that declares Vinimal off stays off: a click neither turns it on nor changes the list.
-  if (await isTabDeclaredOff(id)) return;
   const site = await siteOfTab(id);
   if (site === undefined) return;
   await setSiteDisabled(site.hostname, !(await isSiteDisabled(site.hostname)));
 });
 
-// Chrome's docs don't promise a tab's icon survives navigation, so it's set on every one. The new
-// page's declaration comes from its own content script, so the last page's goes first.
-chrome.webNavigation.onCommitted.addListener(async ({ tabId, frameId, documentId }) => {
-  if (frameId !== 0) return;
-  await forgetOtherDocuments(tabId, documentId);
-  await showIconState(tabId);
+// Chrome's docs don't promise a tab's icon survives navigation, so it's set on every one.
+chrome.webNavigation.onCommitted.addListener(({ tabId, frameId }) => {
+  if (frameId === 0) void showIconState(tabId);
 });
 
 chrome.storage.onChanged.addListener((changes, area) => {
@@ -86,14 +74,7 @@ const hintSessions = new Map<number, HintSession>();
 chrome.webNavigation.onCommitted.addListener(({ tabId, frameId }) => {
   if (frameId === 0) hintSessions.delete(tabId);
 });
-chrome.tabs.onRemoved.addListener(tabId => {
-  hintSessions.delete(tabId);
-  void forgetTab(tabId);
-});
-chrome.tabs.onReplaced.addListener((_, replacedTabId) => {
-  hintSessions.delete(replacedTabId);
-  void forgetTab(replacedTabId);
-});
+chrome.tabs.onRemoved.addListener(tabId => hintSessions.delete(tabId));
 
 const startHints = async (tabId: number, sessionFrameId: number): Promise<HintPlan> => {
   // The session exists from the start, so an end that arrives while frames are still counting
@@ -213,7 +194,7 @@ chrome.runtime.onStartup.addListener(() => {
 
 const answer = async (
   message: WorkerMessage,
-  { tab, frameId, documentId }: chrome.runtime.MessageSender,
+  { tab, frameId }: chrome.runtime.MessageSender,
 ): Promise<WorkerReply<WorkerMessage>> => {
   switch (message.type) {
     case 'hints-start':
@@ -248,11 +229,6 @@ const answer = async (
         await sendToFrame({ tabId: tab.id, frameId: 0 }, { type: 'show-notice' }).catch(() => null);
       }
       return null;
-    case 'page-declaration':
-      if (tab?.id === undefined || documentId === undefined) return null;
-      await setTabDeclaration(tab.id, { documentId, isOff: message.isDeclaredOff });
-      await showIconState(tab.id);
-      return null;
     case 'toggle-help':
     case 'close-help':
       // The dialog lives in the top frame, whichever frame asked.
@@ -278,25 +254,5 @@ chrome.runtime.onMessage.addListener((message: WorkerMessage, sender, sendRespon
     }
   });
   // Keeps the channel open for the asynchronous reply.
-  return true;
-});
-
-// --- Vinimal's site asks whether Vinimal is on there, to say whose keys it's answering.
-
-chrome.runtime.onMessageExternal.addListener((message: unknown, sender, sendResponse) => {
-  void Promise.try(async () => {
-    try {
-      sendResponse(
-        (await answerSite(message, sender, {
-          allowsLocalhost: import.meta.env.MODE !== 'release',
-          now: Date.now(),
-        })) ?? null,
-      );
-    } catch (error) {
-      // biome-ignore lint/suspicious/noConsole: the service worker's console is an extension's only log.
-      console.error('Vinimal couldn’t answer its site', error);
-      sendResponse(null);
-    }
-  });
   return true;
 });

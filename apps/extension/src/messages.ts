@@ -28,8 +28,6 @@ export type WorkerMessage =
   | { type: 'open-page'; page: Page }
   /** A key was pressed after the trial or licence ran out. */
   | { type: 'keys-stopped' }
-  /** From the top frame, once its document is read: whether the page declares Vinimal off. */
-  | { type: 'page-declaration'; isDeclaredOff: boolean }
   /** `?` in a frame, which asks the top frame to show or hide the keys. */
   | { type: 'toggle-help' }
   /** From the Keys page shown in that dialog: Esc or `?` there closes it. */

@@ -1,6 +1,6 @@
 {
   "name": "@vinimal/extension",
-  "version": "0.2.0",
+  "version": "0.1.0",
   "private": true,
   "license": "GPL-3.0-only",
   "type": "module",
@@ -16,10 +16,7 @@
     "./hints/labels": "./src/hints/labels.ts",
     "./hints/targets": "./src/hints/targets.ts",
     "./ui/overlay/hint-layer": "./src/ui/overlay/hint-layer.ts",
-    "./ui/overlay/overlay.css": "./src/ui/overlay/overlay.css",
-    "./licence/stopped": "./src/licence/stopped.ts",
-    "./site": "./src/site.ts",
-    "./site-messages": "./src/site-messages.ts"
+    "./ui/overlay/overlay.css": "./src/ui/overlay/overlay.css"
   },
   "description": "Vinimal: a Chrome (MV3) extension with the few Vimium keys people use, made to look good.",
   "scripts": {
