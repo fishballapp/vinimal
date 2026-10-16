@@ -2,7 +2,7 @@
 // pnpm -F @vinimal/extension icons
 import { readFile } from 'node:fs/promises';
 import sharp from 'sharp';
-import type { IconDrawing } from '../src/action/icon-paths';
+import type { IconState } from '../src/action/icon-paths';
 
 const master = (name: string) => readFile(new URL(`../../../assets-src/${name}`, import.meta.url));
 const out = (name: string) => new URL(`../public/icons/${name}.png`, import.meta.url).pathname;
@@ -15,7 +15,7 @@ const render = async (svg: Buffer, size: number, viewBox: number) =>
 
 // Each state has a 16 px drawing on the pixel grid and a 128 px one for the toolbar's 32 px, both
 // filling their canvas. The store sizes come from `icon.svg`, which keeps the store's padding.
-const MASTERS: Record<IconDrawing, { small: string; large: string }> = {
+const MASTERS: Record<IconState, { small: string; large: string }> = {
   on: { small: 'icon-16.svg', large: 'icon-32.svg' },
   off: { small: 'icon-off-16.svg', large: 'icon-off.svg' },
   unavailable: { small: 'icon-unavailable-16.svg', large: 'icon-unavailable.svg' },
