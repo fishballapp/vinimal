@@ -15,11 +15,12 @@ import {
   type WorkerMessage,
   type WorkerReply,
 } from './messages';
+import { answerSite } from './site-status';
 import { hostnamesIn, isSiteDisabled, setSiteDisabled } from './sites';
 
 // The service worker: the toolbar icon and its menu, the hint session's go-between for a tab's
-// frames, and the licence check. Every listener is registered synchronously at the top level, so
-// Chrome can wake the worker for any of them.
+// frames, the licence check, and the answer to Vinimal's site. Every listener is registered
+// synchronously at the top level, so Chrome can wake the worker for any of them.
 
 // --- The toolbar icon: a click disables or enables the site.
 
@@ -254,5 +255,25 @@ chrome.runtime.onMessage.addListener((message: WorkerMessage, sender, sendRespon
     }
   });
   // Keeps the channel open for the asynchronous reply.
+  return true;
+});
+
+// --- Vinimal's site asks whether Vinimal is on there, to say whose keys it's answering.
+
+chrome.runtime.onMessageExternal.addListener((message: unknown, sender, sendResponse) => {
+  void Promise.try(async () => {
+    try {
+      sendResponse(
+        (await answerSite(message, sender, {
+          allowsLocalhost: import.meta.env.MODE !== 'release',
+          now: Date.now(),
+        })) ?? null,
+      );
+    } catch (error) {
+      // biome-ignore lint/suspicious/noConsole: the service worker's console is an extension's only log.
+      console.error('Vinimal couldn’t answer its site', error);
+      sendResponse(null);
+    }
+  });
   return true;
 });

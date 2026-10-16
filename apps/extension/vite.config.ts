@@ -5,8 +5,10 @@ import react from '@vitejs/plugin-react';
 import { build, defineConfig, type Plugin } from 'vite';
 import packageJson from './package.json' with { type: 'json' };
 import { iconPaths } from './src/action/icon-paths';
+import { DEV_PUBLIC_KEY, siteMatches } from './src/site';
 
-const manifest: chrome.runtime.ManifestV3 = {
+/** The release build is the store's; every other one is a build to try, unpacked. */
+const manifestFor = ({ isRelease }: { isRelease: boolean }): chrome.runtime.ManifestV3 => ({
   manifest_version: 3,
   name: 'Vinimal',
   short_name: 'Vinimal',
@@ -46,16 +48,20 @@ const manifest: chrome.runtime.ManifestV3 = {
   web_accessible_resources: [
     { resources: ['keys.html'], matches: ['<all_urls>'], use_dynamic_url: true },
   ],
-};
+  // Vinimal's site asks whether Vinimal is on there (src/site-status.ts); no other page can.
+  externally_connectable: { matches: siteMatches({ allowsLocalhost: !isRelease }) },
+  // A fixed ID for a build to try, so the site finds it; the store's build has the item's own.
+  ...(isRelease ? {} : { key: DEV_PUBLIC_KEY }),
+});
 
 /** Writes manifest.json from the object above, so the version comes from package.json. */
-const emitManifest = (): Plugin => ({
+const emitManifest = ({ mode }: { mode: string }): Plugin => ({
   name: 'vinimal-manifest',
   generateBundle() {
     this.emitFile({
       type: 'asset',
       fileName: 'manifest.json',
-      source: `${JSON.stringify(manifest, null, 2)}\n`,
+      source: `${JSON.stringify(manifestFor({ isRelease: mode === 'release' }), null, 2)}\n`,
     });
   },
 });
@@ -103,7 +109,7 @@ export default defineConfig(({ mode }) => ({
     react(),
     tailwindcss(),
     stripHtmlComments(),
-    emitManifest(),
+    emitManifest({ mode }),
     buildContentScript({ mode }),
   ],
   build: {
