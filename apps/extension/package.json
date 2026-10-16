@@ -4,6 +4,20 @@
   "private": true,
   "license": "GPL-3.0-only",
   "type": "module",
+  "exports": {
+    "./polar-config": "./src/licence/polar-config.ts",
+    "./polar": "./src/licence/polar.ts",
+    "./keys/commands": "./src/keys/commands.ts",
+    "./keys/dispatch": "./src/keys/dispatch.ts",
+    "./keys/platform": "./src/keys/platform.ts",
+    "./keys/text-field": "./src/keys/text-field.ts",
+    "./scroll/scroller": "./src/scroll/scroller.ts",
+    "./hints/activate": "./src/hints/activate.ts",
+    "./hints/labels": "./src/hints/labels.ts",
+    "./hints/targets": "./src/hints/targets.ts",
+    "./ui/overlay/hint-layer": "./src/ui/overlay/hint-layer.ts",
+    "./ui/overlay/overlay.css": "./src/ui/overlay/overlay.css"
+  },
   "description": "Vinimal: a Chrome (MV3) extension with the few Vimium keys people use, made to look good.",
   "scripts": {
     "dev": "vite build --watch",
