@@ -11,6 +11,7 @@
     "./keys/dispatch": "./src/keys/dispatch.ts",
     "./keys/platform": "./src/keys/platform.ts",
     "./keys/text-field": "./src/keys/text-field.ts",
+    "./scroll/glide": "./src/scroll/glide.ts",
     "./scroll/scroller": "./src/scroll/scroller.ts",
     "./hints/activate": "./src/hints/activate.ts",
     "./hints/labels": "./src/hints/labels.ts",

@@ -12,7 +12,9 @@ const FINGER_BAR: Record<Finger, string> = {
 
 /**
  * A keycap with its legend, and a bar in the colour of the finger that types it, as on a
- * touch-typing chart. An idle key (one Vinimal doesn't use) is drawn faint, without a bar.
+ * touch-typing chart. One cap per keystroke, its legend what you type, case kept (`j`, `G`, `T`,
+ * `^e`); a sequence such as `gg` is two caps. An idle key
+ * (one Vinimal doesn't use) is drawn faint, without a bar.
  */
 export const Key = ({
   children,
@@ -33,7 +35,7 @@ export const Key = ({
   <kbd
     style={style}
     className={cn(
-      'relative inline-flex items-center justify-center rounded-[5px] font-mono text-xs font-bold uppercase',
+      'relative inline-flex items-center justify-center rounded-[5px] font-mono text-xs font-bold',
       isInline ? 'h-5 min-w-5 px-1 align-[-0.15em] text-[11px]' : 'h-7 min-w-7 px-1.5 pb-1',
       isIdle
         ? 'bg-key-idle text-ink-faint'

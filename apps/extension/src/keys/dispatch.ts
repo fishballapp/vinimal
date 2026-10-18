@@ -19,8 +19,18 @@ export type Outcome = Command | { type: 'leave-text-field' };
  * pages: text fields, modifiers and composition are the page's, and after a `g` it waits a while
  * for the key that finishes it. `undefined` for a key that belongs to the page.
  */
-export const createDispatcher = () => {
+export const createDispatcher = ({
+  onPending,
+}: {
+  /** The first `g` of a command was pressed (`true`), or the wait for the rest of it ended. */
+  onPending?: (isPending: boolean) => void;
+} = {}) => {
   let awaitingG: ReturnType<typeof setTimeout> | undefined;
+  const wait = (timer: ReturnType<typeof setTimeout> | undefined) => {
+    const wasPending = awaitingG !== undefined;
+    awaitingG = timer;
+    if (wasPending !== (timer !== undefined)) onPending?.(timer !== undefined);
+  };
   return (input: KeyInput): Outcome | undefined => {
     // Mid-composition every key is the input method's, Esc included: it closes the candidates.
     if (input.isComposing) return undefined;
@@ -32,11 +42,13 @@ export const createDispatcher = () => {
       isAwaitingG: awaitingG !== undefined,
     });
     clearTimeout(awaitingG);
-    awaitingG = undefined;
+    wait(undefined);
     if (command?.type === 'await-g') {
-      awaitingG = setTimeout(() => {
-        awaitingG = undefined;
-      }, G_TIMEOUT);
+      wait(
+        setTimeout(() => {
+          wait(undefined);
+        }, G_TIMEOUT),
+      );
     }
     return command;
   };

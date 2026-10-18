@@ -52,6 +52,40 @@ describe('createDispatcher', () => {
     });
   });
 
+  it('says when the first g is waiting for the rest, and when the wait ends', () => {
+    const pending: boolean[] = [];
+    const dispatch = createDispatcher({ onPending: isPending => pending.push(isPending) });
+    dispatch(press('g'));
+    expect(pending).toEqual([true]);
+    // Shift on the way to T keeps it waiting.
+    dispatch(press('Shift', { shiftKey: true }));
+    expect(pending).toEqual([true]);
+    dispatch(press('T', { shiftKey: true }));
+    expect(pending).toEqual([true, false]);
+  });
+
+  it('drops a waiting g for any other key, which then counts on its own', () => {
+    const pending: boolean[] = [];
+    const dispatch = createDispatcher({ onPending: isPending => pending.push(isPending) });
+    dispatch(press('g'));
+    expect(dispatch(press('j'))).toEqual({ type: 'scroll', axis: 'y', direction: 1 });
+    expect(pending).toEqual([true, false]);
+    // A key Vinimal doesn't have drops it too.
+    dispatch(press('g'));
+    expect(dispatch(press('x'))).toBeUndefined();
+    expect(pending).toEqual([true, false, true, false]);
+    // So the next g starts again.
+    expect(dispatch(press('g'))).toEqual({ type: 'await-g' });
+  });
+
+  it('drops a waiting g after the wait', () => {
+    const pending: boolean[] = [];
+    const dispatch = createDispatcher({ onPending: isPending => pending.push(isPending) });
+    dispatch(press('g'));
+    vi.advanceTimersByTime(G_TIMEOUT + 1);
+    expect(pending).toEqual([true, false]);
+  });
+
   it('leaves keys in a text field to the page, and Esc leaves the field', () => {
     const dispatch = createDispatcher();
     expect(dispatch(press('j', { isTextField: true }))).toBeUndefined();

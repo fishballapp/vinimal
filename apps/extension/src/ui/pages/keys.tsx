@@ -35,14 +35,14 @@ const ROWS: { lead: { legend: string; width: number; isUsed: boolean }; letters:
 // widest row, Shift and ten keys, is 12.25 units and 10 gaps.
 const KEY = 'h-(--unit) min-w-0 shrink-0 px-0 text-[length:calc(var(--unit)*0.34)]';
 const LEAD_KEY =
-  'h-(--unit) min-w-0 shrink-0 justify-start px-[calc(var(--unit)*0.2)] text-[length:max(8px,calc(var(--unit)*0.27))] normal-case';
+  'h-(--unit) min-w-0 shrink-0 justify-start px-[calc(var(--unit)*0.2)] text-[length:max(8px,calc(var(--unit)*0.27))]';
 
 /** Vinimal's keys on the keyboard, in the colours of the fingers that type them. */
 const Keyboard = () => (
   <div aria-hidden="true" className="@container rounded-xl bg-sunken p-5">
     <div className="flex flex-col gap-(--gap) [--gap:clamp(2px,0.6cqi,5px)] [--unit:min(2.4rem,calc((100cqi_-_10_*_var(--gap))_/_12.25))]">
       <div className="flex">
-        <Key finger="pinky" className={`${KEY} w-(--unit) normal-case`}>
+        <Key finger="pinky" className={`${KEY} w-(--unit)`}>
           esc
         </Key>
       </div>
@@ -92,6 +92,8 @@ const OutlinesSetting = () => {
 /** Between the two keys of a pair that share a row. */
 const Or = () => <span className="px-1 text-ink-faint">/</span>;
 
+/** A cap per keystroke, its legend what you type (case kept, `^` for Control); a sequence is its
+ * keys side by side. */
 const KEYS: { keys: ReactNode; does: ReactNode }[] = [
   {
     keys: (
@@ -122,32 +124,16 @@ const KEYS: { keys: ReactNode; does: ReactNode }[] = [
     ),
     does: 'Top',
   },
+  { keys: <Key finger="index">G</Key>, does: 'Bottom' },
   {
     keys: (
       <>
-        <Key finger="pinky" className="normal-case">
-          shift
-        </Key>
-        <Key finger="index">g</Key>
-      </>
-    ),
-    does: 'Bottom',
-  },
-  {
-    keys: (
-      <>
-        <Key finger="pinky" className="normal-case">
-          control
-        </Key>
-        <Key finger="middle">e</Key>
+        <Key finger="middle">^e</Key>
         <Or />
-        <Key finger="pinky" className="normal-case">
-          control
-        </Key>
-        <Key finger="index">y</Key>
+        <Key finger="index">^y</Key>
       </>
     ),
-    does: 'Page down / up',
+    does: 'Page down / up (^ is Control)',
   },
   {
     keys: (
@@ -156,10 +142,7 @@ const KEYS: { keys: ReactNode; does: ReactNode }[] = [
         <Key finger="index">t</Key>
         <Or />
         <Key finger="index">g</Key>
-        <Key finger="pinky" className="normal-case">
-          shift
-        </Key>
-        <Key finger="index">t</Key>
+        <Key finger="index">T</Key>
       </>
     ),
     does: 'Next / previous tab',
@@ -168,27 +151,13 @@ const KEYS: { keys: ReactNode; does: ReactNode }[] = [
     keys: <Key finger="index">f</Key>,
     does: (
       <>
-        Click a link (tap{' '}
-        <Key isInline className="normal-case">
-          {NEW_TAB_LEGEND}
-        </Key>{' '}
-        first: new tab)
+        Click a link (tap <Key isInline>{NEW_TAB_LEGEND}</Key> first: new tab)
         <OutlinesSetting />
       </>
     ),
   },
-  {
-    keys: (
-      <Key finger="pinky" className="normal-case">
-        esc
-      </Key>
-    ),
-    does: 'Close, or leave a text field',
-  },
-  {
-    keys: <Key finger="pinky">?</Key>,
-    does: 'These keys',
-  },
+  { keys: <Key finger="pinky">esc</Key>, does: 'Close, or leave a text field' },
+  { keys: <Key finger="pinky">?</Key>, does: 'These keys' },
 ];
 
 const KeysPage = () => (
