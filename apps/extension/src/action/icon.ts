@@ -1,13 +1,11 @@
 import { isTabDeclaredOff } from '../declaration';
-import { isSiteDisabled, siteOf } from '../sites';
+import { isSiteDisabled, setSiteDisabled, siteName, siteOf } from '../sites';
 import { type IconState, iconPaths } from './icon-paths';
-
-const nameOf = (hostname: string) => (hostname === '' ? 'local files' : hostname);
 
 /** The icon's tooltip: what a click does. Chrome adds its own line about site access below. */
 export const TITLES: Record<IconState, (hostname: string) => string> = {
-  on: hostname => `Disable Vinimal on ${nameOf(hostname)}`,
-  off: hostname => `Enable Vinimal on ${nameOf(hostname)}`,
+  on: hostname => `Disable Vinimal on ${siteName(hostname)}`,
+  off: hostname => `Enable Vinimal on ${siteName(hostname)}`,
   unavailable: () => 'Vinimal can’t run here',
   'declared-off': () => 'This site turns Vinimal off',
 };
@@ -34,6 +32,22 @@ export const siteOfTab = async (tabId: number) => {
     chrome.extension.isAllowedFileSchemeAccess(),
   ]);
   return siteOf(tab?.url, { isFileAccessAllowed });
+};
+
+/**
+ * Toggles Vinimal on or off for `tabId`'s site (used by the toolbar icon and `ZZ`), returning the
+ * site's new state, or `undefined` when the page declares Vinimal off or Vinimal can't run there.
+ */
+export const toggleTabSite = async (
+  tabId: number,
+): Promise<{ hostname: string; isEnabled: boolean } | undefined> => {
+  // A page that declares Vinimal off stays off: a toggle neither turns it on nor changes the list.
+  if (await isTabDeclaredOff(tabId)) return undefined;
+  const site = await siteOfTab(tabId);
+  if (site === undefined) return undefined;
+  const isDisabled = !(await isSiteDisabled(site.hostname));
+  await setSiteDisabled(site.hostname, isDisabled);
+  return { hostname: site.hostname, isEnabled: !isDisabled };
 };
 
 /** Sets a tab's icon and tooltip to the tab's state: see `iconStateOf`. */

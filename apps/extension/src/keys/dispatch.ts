@@ -1,4 +1,11 @@
-import { type Command, commandFor, G_TIMEOUT, isForThePage, isModifierKey } from './commands';
+import {
+  type Command,
+  commandFor,
+  isForThePage,
+  isModifierKey,
+  PREFIX_TIMEOUT,
+  type Prefix,
+} from './commands';
 
 /** What a keydown is, for deciding whether it's one of Vinimal's keys. */
 export type KeyInput = {
@@ -16,20 +23,20 @@ export type Outcome = Command | { type: 'leave-text-field' };
 
 /**
  * Turns keydowns into Vinimal's commands, the same on a web page and on the extension's own
- * pages: text fields, modifiers and composition are the page's, and after a `g` it waits a while
- * for the key that finishes it. `undefined` for a key that belongs to the page.
+ * pages: text fields, modifiers and composition are the page's, and after a prefix (`g` or `Z`) it
+ * waits a while for the key that finishes it. `undefined` for a key that belongs to the page.
  */
 export const createDispatcher = ({
   onPending,
 }: {
-  /** The first `g` of a command was pressed (`true`), or the wait for the rest of it ended. */
+  /** The first key of a sequence was pressed (`true`), or the wait for the rest of it ended. */
   onPending?: (isPending: boolean) => void;
 } = {}) => {
-  let awaitingG: ReturnType<typeof setTimeout> | undefined;
-  const wait = (timer: ReturnType<typeof setTimeout> | undefined) => {
-    const wasPending = awaitingG !== undefined;
-    awaitingG = timer;
-    if (wasPending !== (timer !== undefined)) onPending?.(timer !== undefined);
+  let awaiting: { prefix: Prefix; timer: ReturnType<typeof setTimeout> } | undefined;
+  const wait = (next: { prefix: Prefix; timer: ReturnType<typeof setTimeout> } | undefined) => {
+    const wasPending = awaiting !== undefined;
+    awaiting = next;
+    if (wasPending !== (next !== undefined)) onPending?.(next !== undefined);
   };
   return (input: KeyInput): Outcome | undefined => {
     // Mid-composition every key is the input method's, Esc included: it closes the candidates.
@@ -39,16 +46,17 @@ export const createDispatcher = ({
     const command = commandFor({
       key: input.key,
       ctrlKey: input.ctrlKey,
-      isAwaitingG: awaitingG !== undefined,
+      awaiting: awaiting?.prefix,
     });
-    clearTimeout(awaitingG);
+    clearTimeout(awaiting?.timer);
     wait(undefined);
-    if (command?.type === 'await-g') {
-      wait(
-        setTimeout(() => {
+    if (command?.type === 'await-prefix') {
+      wait({
+        prefix: command.prefix,
+        timer: setTimeout(() => {
           wait(undefined);
-        }, G_TIMEOUT),
-      );
+        }, PREFIX_TIMEOUT),
+      });
     }
     return command;
   };

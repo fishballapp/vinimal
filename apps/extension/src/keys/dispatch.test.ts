@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { G_TIMEOUT } from './commands';
+import { PREFIX_TIMEOUT } from './commands';
 import { createDispatcher, type KeyInput } from './dispatch';
 
 const press = (key: string, overrides: Partial<KeyInput> = {}): KeyInput => ({
@@ -35,11 +35,34 @@ describe('createDispatcher', () => {
 
   it('finishes gg within the wait, and not after it', () => {
     const dispatch = createDispatcher();
-    expect(dispatch(press('g'))).toEqual({ type: 'await-g' });
+    expect(dispatch(press('g'))).toEqual({ type: 'await-prefix', prefix: 'g' });
     expect(dispatch(press('g'))).toEqual({ type: 'jump', to: 'top' });
     dispatch(press('g'));
-    vi.advanceTimersByTime(G_TIMEOUT + 1);
-    expect(dispatch(press('g'))).toEqual({ type: 'await-g' });
+    vi.advanceTimersByTime(PREFIX_TIMEOUT + 1);
+    expect(dispatch(press('g'))).toEqual({ type: 'await-prefix', prefix: 'g' });
+  });
+
+  it('finishes ZZ within the wait, keeps it through Shift, and drops it after the wait or another key', () => {
+    const dispatch = createDispatcher();
+    expect(dispatch(press('Z', { shiftKey: true }))).toEqual({
+      type: 'await-prefix',
+      prefix: 'Z',
+    });
+    expect(dispatch(press('Shift', { shiftKey: true }))).toBeUndefined();
+    expect(dispatch(press('Z', { shiftKey: true }))).toEqual({ type: 'toggle-site' });
+
+    dispatch(press('Z', { shiftKey: true }));
+    vi.advanceTimersByTime(PREFIX_TIMEOUT + 1);
+    expect(dispatch(press('Z', { shiftKey: true }))).toEqual({
+      type: 'await-prefix',
+      prefix: 'Z',
+    });
+
+    expect(dispatch(press('z'))).toBeUndefined();
+    expect(dispatch(press('Z', { shiftKey: true }))).toEqual({
+      type: 'await-prefix',
+      prefix: 'Z',
+    });
   });
 
   it('keeps the wait through Shift on the way to the T of gT', () => {
@@ -75,20 +98,21 @@ describe('createDispatcher', () => {
     expect(dispatch(press('x'))).toBeUndefined();
     expect(pending).toEqual([true, false, true, false]);
     // So the next g starts again.
-    expect(dispatch(press('g'))).toEqual({ type: 'await-g' });
+    expect(dispatch(press('g'))).toEqual({ type: 'await-prefix', prefix: 'g' });
   });
 
   it('drops a waiting g after the wait', () => {
     const pending: boolean[] = [];
     const dispatch = createDispatcher({ onPending: isPending => pending.push(isPending) });
     dispatch(press('g'));
-    vi.advanceTimersByTime(G_TIMEOUT + 1);
+    vi.advanceTimersByTime(PREFIX_TIMEOUT + 1);
     expect(pending).toEqual([true, false]);
   });
 
   it('leaves keys in a text field to the page, and Esc leaves the field', () => {
     const dispatch = createDispatcher();
     expect(dispatch(press('j', { isTextField: true }))).toBeUndefined();
+    expect(dispatch(press('Z', { shiftKey: true, isTextField: true }))).toBeUndefined();
     expect(dispatch(press('Escape', { isTextField: true }))).toEqual({ type: 'leave-text-field' });
   });
 });

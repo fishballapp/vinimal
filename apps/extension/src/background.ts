@@ -4,13 +4,8 @@ import {
   LICENCE_ALARM,
   startLicenceAlarm,
 } from '@fishballapps/extension-licence/worker';
-import { showIconState, showIconStateEverywhere, siteOfTab } from './action/icon';
-import {
-  forgetOtherDocuments,
-  forgetTab,
-  isTabDeclaredOff,
-  setTabDeclaration,
-} from './declaration';
+import { showIconState, showIconStateEverywhere, siteOfTab, toggleTabSite } from './action/icon';
+import { forgetOtherDocuments, forgetTab, setTabDeclaration } from './declaration';
 import { createLabelPool, type LabelPool } from './hints/labels';
 import { licenceServer } from './licence/polar';
 import {
@@ -22,7 +17,7 @@ import {
   type WorkerReply,
 } from './messages';
 import { answerSite } from './site-status';
-import { hostnamesIn, isSiteDisabled, setSiteDisabled } from './sites';
+import { hostnamesIn } from './sites';
 
 // The service worker: the toolbar icon and its menu, the hint session's go-between for a tab's
 // frames, the licence check, and the answer to Vinimal's site. Every listener is registered
@@ -32,11 +27,7 @@ import { hostnamesIn, isSiteDisabled, setSiteDisabled } from './sites';
 
 chrome.action.onClicked.addListener(async ({ id }) => {
   if (id === undefined) return;
-  // A page that declares Vinimal off stays off: a click neither turns it on nor changes the list.
-  if (await isTabDeclaredOff(id)) return;
-  const site = await siteOfTab(id);
-  if (site === undefined) return;
-  await setSiteDisabled(site.hostname, !(await isSiteDisabled(site.hostname)));
+  await toggleTabSite(id);
 });
 
 // Chrome's docs don't promise a tab's icon survives navigation, so it's set on every one. The new
@@ -260,6 +251,17 @@ const answer = async (
         await sendToFrame({ tabId: tab.id, frameId: 0 }, { type: message.type }).catch(() => null);
       }
       return null;
+    case 'toggle-site': {
+      if (tab?.id === undefined) return null;
+      const toggled = await toggleTabSite(tab.id);
+      if (toggled !== undefined) {
+        await sendToFrame(
+          { tabId: tab.id, frameId: 0 },
+          { type: 'site-toggled', ...toggled },
+        ).catch(() => null);
+      }
+      return null;
+    }
     case 'activate-licence':
       return licence.activate(message.key);
   }

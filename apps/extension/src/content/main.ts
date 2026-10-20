@@ -14,6 +14,7 @@ import { hostnamesIn, isSiteDisabled } from '../sites';
 import type { Dialog } from '../ui/overlay/dialog';
 import { showHelp } from '../ui/overlay/help';
 import { showNotice } from '../ui/overlay/notice';
+import { dismissToast, showToast } from '../ui/overlay/toast';
 
 // The content script, in every frame of every page. It decides nothing about the page until it
 // knows whether the site is enabled, and takes a key only when it's one of Vinimal's.
@@ -35,9 +36,12 @@ const site = (() => {
   return URL.parse(top ?? '')?.hostname ?? location.hostname;
 })();
 
-let isEnabled = false;
+/** `undefined` until storage is read, so no key is taken before the frame knows the site's state. */
+let isEnabled: boolean | undefined;
 const refreshIsEnabled = async () => {
-  isEnabled = !(await isSiteDisabled(site));
+  const next = !(await isSiteDisabled(site));
+  if (!next && isEnabled === true) stopActive();
+  isEnabled = next;
 };
 
 let licensing: Awaited<ReturnType<typeof loadLicensing>> | undefined;
@@ -108,6 +112,15 @@ const toggleHelp = () => {
 /** Whether this copy still belongs to the installed extension; an update cuts the old one off. */
 const isConnected = () => chrome.runtime?.id !== undefined;
 
+/** Ends any active hints, dialogs or scrolling in this frame (leaving a toast to finish). */
+const stopActive = () => {
+  session?.end();
+  session = undefined;
+  closeDialog();
+  scroller.release();
+  void hintFrame.handle({ type: 'hints-end' });
+};
+
 /**
  * The page declares Vinimal off, so whatever Vinimal had showing in this frame goes.
  * ponytail: a frame whose own document has no tag still runs its keys inside a tagged page, as
@@ -115,11 +128,8 @@ const isConnected = () => chrome.runtime?.id !== undefined;
  * find no labels there.
  */
 const endHere = () => {
-  session?.end();
-  session = undefined;
-  closeDialog();
-  scroller.release();
-  void hintFrame.handle({ type: 'hints-end' });
+  stopActive();
+  dismissToast();
 };
 
 addEventListener(
@@ -146,9 +156,23 @@ addEventListener(
       }
       return;
     }
-    if (!isEnabled) return;
+    if (isEnabled === undefined) return;
+    // Once `ZZ` has taken `Z`, further repeats of that held press do nothing.
+    if (event.repeat && event.key === 'Z' && taken.has(event.code)) {
+      take(event);
+      return;
+    }
     const command = dispatch(readKey(event));
     if (command === undefined) return;
+    // `ZZ` toggles the site even when it's disabled or the keys have stopped, while leaving the
+    // first `Z` and every other key to the page.
+    if (command.type === 'toggle-site') {
+      take(event);
+      void sendToWorker({ type: 'toggle-site' });
+      return;
+    }
+    if (command.type === 'await-prefix' && command.prefix === 'Z') return;
+    if (!isEnabled) return;
     // Esc leaves the text field so the keys work again; the page still hears it.
     if (command.type === 'leave-text-field') {
       leaveTextField();
@@ -176,7 +200,7 @@ addEventListener(
       case 'switch-tab':
         void sendToWorker({ type: 'switch-tab', direction: command.direction });
         return;
-      case 'await-g':
+      case 'await-prefix':
         return;
       case 'help':
         toggleHelp();
@@ -221,6 +245,7 @@ addEventListener(
   () => {
     session?.end();
     void hintFrame.handle({ type: 'hints-end' });
+    dismissToast();
   },
   { signal },
 );
@@ -280,6 +305,9 @@ const onMessage = (
     case 'close-help':
       if (dialog?.kind === 'help') closeDialog();
       return false;
+    case 'site-toggled':
+      if (window === window.top) showToast(message);
+      return false;
     case 'hints-labels':
       session?.relabel(message.labels);
       return false;
@@ -298,10 +326,7 @@ chrome.runtime.onMessage.addListener(onMessage);
 /** Lets a newer copy take over: no more listeners, nothing left on the page. */
 const standDown = () => {
   lifetime.abort();
-  session = undefined;
-  scroller.release();
-  void hintFrame.handle({ type: 'hints-end' });
-  closeDialog();
+  endHere();
   // A copy cut off by an update can't reach chrome.* any more, and has nothing to remove there.
   if (isConnected()) {
     chrome.storage.onChanged.removeListener(onStorageChanged);

@@ -43,6 +43,9 @@ export const hostnamesIn = (changes: Record<string, unknown>) =>
     .filter(key => key.startsWith(PREFIX))
     .map(key => key.slice(PREFIX.length));
 
+/** A site's name as people read it: local files have no hostname. */
+export const siteName = (hostname: string) => (hostname === '' ? 'local files' : hostname);
+
 const STORE_HOSTS = new Set(['chromewebstore.google.com', 'chrome.google.com']);
 
 /**

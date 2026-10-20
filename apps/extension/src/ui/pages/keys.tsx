@@ -20,7 +20,7 @@ const FINGER_BY_COLUMN: Finger[] = [
   'pinky',
 ];
 
-const USED = new Set(['e', 'f', 'g', 'h', 'j', 'k', 'l', 't', 'y', '/']);
+const USED = new Set(['e', 'f', 'g', 'h', 'j', 'k', 'l', 't', 'y', 'z', '/']);
 
 /** The left of a keyboard: modifier keys with their widths in key units, then a row of letters. */
 const ROWS: { lead: { legend: string; width: number; isUsed: boolean }; letters: string }[] = [
@@ -156,6 +156,15 @@ const KEYS: { keys: ReactNode; does: ReactNode }[] = [
       </>
     ),
   },
+  {
+    keys: (
+      <>
+        <Key finger="pinky">Z</Key>
+        <Key finger="pinky">Z</Key>
+      </>
+    ),
+    does: 'Disable or enable on this site',
+  },
   { keys: <Key finger="pinky">esc</Key>, does: 'Close, or leave a text field' },
   { keys: <Key finger="pinky">?</Key>, does: 'These keys' },
 ];
@@ -184,7 +193,7 @@ const KeysPage = () => (
     </table>
     <ul className="flex list-none flex-col gap-1 text-ink-muted">
       <li>Keys in a text field go to the page.</li>
-      <li>Click the toolbar icon to disable Vinimal on a site.</li>
+      <li>Click the toolbar icon or press ZZ to disable Vinimal on a site.</li>
     </ul>
   </>
 );

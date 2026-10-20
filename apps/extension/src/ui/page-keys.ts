@@ -24,7 +24,14 @@ export const installPageKeys = () => {
         leaveTextField();
         return;
       }
-      if (outcome.type === 'hints' || outcome.type === 'help') return;
+      if (
+        outcome.type === 'hints' ||
+        outcome.type === 'help' ||
+        outcome.type === 'toggle-site' ||
+        (outcome.type === 'await-prefix' && outcome.prefix === 'Z')
+      ) {
+        return;
+      }
       event.preventDefault();
       taken.add(event.code);
       if (event.repeat && !repeats(outcome)) return;
@@ -41,7 +48,7 @@ export const installPageKeys = () => {
         case 'switch-tab':
           void sendToWorker({ type: 'switch-tab', direction: outcome.direction });
           return;
-        case 'await-g':
+        case 'await-prefix':
           return;
       }
     },

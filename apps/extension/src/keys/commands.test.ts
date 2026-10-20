@@ -3,84 +3,114 @@ import { commandFor, isForThePage, isModifierKey, repeats } from './commands';
 
 describe('commandFor', () => {
   it('scrolls with j, k, h and l, and jumps to the bottom with G at once', () => {
-    expect(commandFor({ key: 'j', ctrlKey: false, isAwaitingG: false })).toEqual({
+    expect(commandFor({ key: 'j', ctrlKey: false })).toEqual({
       type: 'scroll',
       axis: 'y',
       direction: 1,
     });
-    expect(commandFor({ key: 'h', ctrlKey: false, isAwaitingG: false })).toEqual({
+    expect(commandFor({ key: 'h', ctrlKey: false })).toEqual({
       type: 'scroll',
       axis: 'x',
       direction: -1,
     });
-    expect(commandFor({ key: 'G', ctrlKey: false, isAwaitingG: false })).toEqual({
+    expect(commandFor({ key: 'G', ctrlKey: false })).toEqual({
       type: 'jump',
       to: 'bottom',
     });
   });
 
   it('waits for a second g before jumping to the top', () => {
-    expect(commandFor({ key: 'g', ctrlKey: false, isAwaitingG: false })).toEqual({
-      type: 'await-g',
+    expect(commandFor({ key: 'g', ctrlKey: false })).toEqual({
+      type: 'await-prefix',
+      prefix: 'g',
     });
-    expect(commandFor({ key: 'g', ctrlKey: false, isAwaitingG: true })).toEqual({
+    expect(commandFor({ key: 'g', ctrlKey: false, awaiting: 'g' })).toEqual({
       type: 'jump',
       to: 'top',
     });
   });
 
   it('switches to the next tab with gt and the previous with gT', () => {
-    expect(commandFor({ key: 't', ctrlKey: false, isAwaitingG: true })).toEqual({
+    expect(commandFor({ key: 't', ctrlKey: false, awaiting: 'g' })).toEqual({
       type: 'switch-tab',
       direction: 1,
     });
-    expect(commandFor({ key: 'T', ctrlKey: false, isAwaitingG: true })).toEqual({
+    expect(commandFor({ key: 'T', ctrlKey: false, awaiting: 'g' })).toEqual({
       type: 'switch-tab',
       direction: -1,
     });
   });
 
   it('leaves t and T to the page without a g first', () => {
-    expect(commandFor({ key: 't', ctrlKey: false, isAwaitingG: false })).toBeUndefined();
-    expect(commandFor({ key: 'T', ctrlKey: false, isAwaitingG: false })).toBeUndefined();
+    expect(commandFor({ key: 't', ctrlKey: false })).toBeUndefined();
+    expect(commandFor({ key: 'T', ctrlKey: false })).toBeUndefined();
+    expect(commandFor({ key: 't', ctrlKey: false, awaiting: 'Z' })).toBeUndefined();
   });
 
-  it('takes a key that doesn’t finish a g command on its own', () => {
-    expect(commandFor({ key: 'j', ctrlKey: false, isAwaitingG: true })).toEqual({
+  it('waits for a second Z before toggling the site', () => {
+    expect(commandFor({ key: 'Z', ctrlKey: false })).toEqual({
+      type: 'await-prefix',
+      prefix: 'Z',
+    });
+    expect(commandFor({ key: 'Z', ctrlKey: false, awaiting: 'Z' })).toEqual({
+      type: 'toggle-site',
+    });
+  });
+
+  it('leaves lowercase z to the page', () => {
+    expect(commandFor({ key: 'z', ctrlKey: false })).toBeUndefined();
+    expect(commandFor({ key: 'z', ctrlKey: false, awaiting: 'Z' })).toBeUndefined();
+  });
+
+  it('takes a key that doesn’t finish a prefix command on its own', () => {
+    expect(commandFor({ key: 'j', ctrlKey: false, awaiting: 'g' })).toEqual({
       type: 'scroll',
       axis: 'y',
       direction: 1,
     });
+    expect(commandFor({ key: 'j', ctrlKey: false, awaiting: 'Z' })).toEqual({
+      type: 'scroll',
+      axis: 'y',
+      direction: 1,
+    });
+    expect(commandFor({ key: 'Z', ctrlKey: false, awaiting: 'g' })).toEqual({
+      type: 'await-prefix',
+      prefix: 'Z',
+    });
+    expect(commandFor({ key: 'g', ctrlKey: false, awaiting: 'Z' })).toEqual({
+      type: 'await-prefix',
+      prefix: 'g',
+    });
   });
 
   it('shows the keys with ?', () => {
-    expect(commandFor({ key: '?', ctrlKey: false, isAwaitingG: false })).toEqual({ type: 'help' });
+    expect(commandFor({ key: '?', ctrlKey: false })).toEqual({ type: 'help' });
   });
 
   it('pages down with Ctrl+E and up with Ctrl+Y', () => {
-    expect(commandFor({ key: 'e', ctrlKey: true, isAwaitingG: false })).toEqual({
+    expect(commandFor({ key: 'e', ctrlKey: true })).toEqual({
       type: 'page',
       direction: 1,
     });
-    expect(commandFor({ key: 'y', ctrlKey: true, isAwaitingG: true })).toEqual({
+    expect(commandFor({ key: 'y', ctrlKey: true, awaiting: 'g' })).toEqual({
       type: 'page',
       direction: -1,
     });
   });
 
   it('gives nothing for Ctrl with any other key, nor e and y without it', () => {
-    expect(commandFor({ key: 'j', ctrlKey: true, isAwaitingG: false })).toBeUndefined();
-    expect(commandFor({ key: 'e', ctrlKey: false, isAwaitingG: false })).toBeUndefined();
-    expect(commandFor({ key: 'y', ctrlKey: false, isAwaitingG: false })).toBeUndefined();
+    expect(commandFor({ key: 'j', ctrlKey: true })).toBeUndefined();
+    expect(commandFor({ key: 'e', ctrlKey: false })).toBeUndefined();
+    expect(commandFor({ key: 'y', ctrlKey: false })).toBeUndefined();
   });
 
   it('starts hints with f', () => {
-    expect(commandFor({ key: 'f', ctrlKey: false, isAwaitingG: false })).toEqual({ type: 'hints' });
+    expect(commandFor({ key: 'f', ctrlKey: false })).toEqual({ type: 'hints' });
   });
 
   it('leaves every other key to the page, shifted letters included', () => {
-    for (const key of ['J', 'F', 'x', '/', 'Enter', ' ', 'ArrowDown']) {
-      expect(commandFor({ key, ctrlKey: false, isAwaitingG: true })).toBeUndefined();
+    for (const key of ['J', 'F', 'x', 'z', '/', 'Enter', ' ', 'ArrowDown']) {
+      expect(commandFor({ key, ctrlKey: false, awaiting: 'g' })).toBeUndefined();
     }
   });
 });
@@ -128,8 +158,9 @@ describe('isModifierKey', () => {
 });
 
 describe('repeats', () => {
-  it('scrolls again on a held j, but not on a held Ctrl+E', () => {
+  it('scrolls again on a held j, but not on a held Ctrl+E or ZZ', () => {
     expect(repeats({ type: 'scroll', axis: 'y', direction: 1 })).toBe(true);
     expect(repeats({ type: 'page', direction: 1 })).toBe(false);
+    expect(repeats({ type: 'toggle-site' })).toBe(false);
   });
 });

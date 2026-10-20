@@ -17,7 +17,7 @@ const SitesPage = () => {
     <>
       <PageTitle
         title="Disabled sites"
-        lede="Vinimal leaves these sites alone, so their own shortcuts work. Click its toolbar icon on any site to disable or enable it there."
+        lede="Vinimal leaves these sites alone, so their own shortcuts work. Click its toolbar icon or press ZZ on any site to disable or enable it there."
       />
       {sites !== undefined && sites.length === 0 && (
         <p className="rounded-xl bg-sunken px-5 py-8 text-center text-ink-muted">

@@ -12,15 +12,16 @@ the keyboard, minimally configurable.
 | `Ctrl+E` / `Ctrl+Y` | Page down / up |
 | `gt` / `gT` | Next / previous tab |
 | `f` | Click a link (tap ⌘ first: new tab) |
+| `ZZ` | Disable or enable on this site |
 | `Esc` | Close, or leave a text field |
 | `?` | These keys |
 
 - Keys typed in a text field go to the page as usual, and so do keys with ⌘, Ctrl or Alt held,
   apart from Ctrl+E and Ctrl+Y. Those use Control on a Mac too; the new-tab ⌘ is Ctrl on Windows
   and Linux.
-- **Click the toolbar icon to disable Vinimal on the site you're on**, for sites with shortcuts of
-  their own. It stays disabled until you click again. Right-click the icon → **Options** for the
-  keys, your disabled sites and your licence.
+- **Click the toolbar icon or press `ZZ` to disable Vinimal on the site you're on**, for sites with
+  shortcuts of their own. It stays disabled until you click the icon or press `ZZ` again.
+  Right-click the icon → **Options** for the keys, your disabled sites and your licence.
 - Labels reach into frames and shadow roots, skip what's hidden or covered, and are one or two letters, home row first.
 - A faint dashed outline shows what each label clicks; switch it off on the Keys page.
 - Scrolling honours "reduce motion" by stepping instead of gliding.
@@ -49,7 +50,7 @@ page's `<head>`:
 ```
 
 Vinimal then takes none of its keys there and shows no hints, dialogs or notices. Its toolbar icon
-says the site turns it off, and a click on the icon can't turn Vinimal back on there. Each frame
+says the site turns it off, and neither the icon nor `ZZ` can turn Vinimal back on there. Each frame
 reads its own document, and a tag added or removed after the page loads is honoured on the next key.
 
 ## Building
@@ -80,8 +81,9 @@ With the build loaded, on any ordinary page:
    typing it: the labels show an arrow, and the link opens in a new tab behind this one. Scroll
    with the labels showing: they move with their links, keep their letters, and links scrolled
    into view get labels when you stop. `Esc` puts the labels away.
-5. Click the toolbar icon: it goes hollow and the keys reach the page. Click again:
-   they're back. On `chrome://` pages the icon carries a prohibition sign and does nothing.
+5. Click the toolbar icon or press `ZZ`: the icon goes hollow and the keys reach the page. Click or
+   press `ZZ` again: they're back. On `chrome://` pages the icon carries a prohibition sign and does
+   nothing.
 6. Right-click the icon → **Options** → **Disabled sites**: the site is listed; **Enable** brings it
    back.
 7. Press `?`: the keys appear over the page. `?`, Esc or a click outside puts them away.

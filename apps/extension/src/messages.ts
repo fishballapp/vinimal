@@ -34,6 +34,8 @@ export type WorkerMessage =
   | { type: 'toggle-help' }
   /** From the Keys page shown in that dialog: Esc or `?` there closes it. */
   | { type: 'close-help' }
+  /** `ZZ`: disable or enable Vinimal on the current site, as the toolbar icon does. */
+  | { type: 'toggle-site' }
   | { type: 'activate-licence'; key: string };
 
 export type WorkerReply<M extends WorkerMessage> = M extends { type: 'hints-start' }
@@ -68,7 +70,9 @@ export type FrameMessage =
   /** Sent to the top frame: say the keys have stopped, as the frame that heard one couldn't. */
   | { type: 'show-notice' }
   | { type: 'toggle-help' }
-  | { type: 'close-help' };
+  | { type: 'close-help' }
+  /** Sent to the top frame after `ZZ` toggles the site: show a brief confirmation. */
+  | { type: 'site-toggled'; hostname: string; isEnabled: boolean };
 
 export type FrameReply<M extends FrameMessage> = M extends { type: 'hints-collect' }
   ? number

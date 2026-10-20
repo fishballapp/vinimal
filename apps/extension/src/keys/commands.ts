@@ -1,3 +1,6 @@
+/** The prefix key a two-key sequence starts with. */
+export type Prefix = 'g' | 'Z';
+
 /** What one of Vinimal's keys does. */
 export type Command =
   | { type: 'scroll'; axis: 'x' | 'y'; direction: 1 | -1 }
@@ -9,8 +12,10 @@ export type Command =
   | { type: 'help' }
   /** The next or previous tab in the window, wrapping at the ends. */
   | { type: 'switch-tab'; direction: 1 | -1 }
-  /** The first `g` of `gg`, `gt` or `gT`. */
-  | { type: 'await-g' };
+  /** Disable or enable Vinimal on the current site, as the toolbar icon does. */
+  | { type: 'toggle-site' }
+  /** The first key of `gg`, `gt`, `gT` or `ZZ`. */
+  | { type: 'await-prefix'; prefix: Prefix };
 
 const KEYS: Record<string, Command> = {
   j: { type: 'scroll', axis: 'y', direction: 1 },
@@ -19,7 +24,8 @@ const KEYS: Record<string, Command> = {
   l: { type: 'scroll', axis: 'x', direction: 1 },
   G: { type: 'jump', to: 'bottom' },
   f: { type: 'hints' },
-  g: { type: 'await-g' },
+  g: { type: 'await-prefix', prefix: 'g' },
+  Z: { type: 'await-prefix', prefix: 'Z' },
   '?': { type: 'help' },
 };
 
@@ -29,36 +35,42 @@ const WITH_CTRL: Record<string, Command> = {
   y: { type: 'page', direction: -1 },
 };
 
-/** The keys that finish a command begun with `g`. */
-const AFTER_G: Record<string, Command> = {
-  g: { type: 'jump', to: 'top' },
-  t: { type: 'switch-tab', direction: 1 },
-  T: { type: 'switch-tab', direction: -1 },
+/** The keys that finish a command begun with a prefix (`g` or `Z`). */
+const AFTER_PREFIX: Record<Prefix, Record<string, Command>> = {
+  g: {
+    g: { type: 'jump', to: 'top' },
+    t: { type: 'switch-tab', direction: 1 },
+    T: { type: 'switch-tab', direction: -1 },
+  },
+  Z: {
+    Z: { type: 'toggle-site' },
+  },
 };
 
-/** How long the key after a `g` may take. */
-export const G_TIMEOUT = 1000;
+/** How long the second key of a sequence (`gg`, `gt`, `gT`, `ZZ`) may take. */
+export const PREFIX_TIMEOUT = 1000;
 
 /**
  * The command a key gives, by `KeyboardEvent.key` so it follows the keyboard layout. `undefined`
- * for any other key, which belongs to the page. After a `g`, a key that doesn't finish a command
- * counts on its own.
+ * for any other key, which belongs to the page. After a prefix, a key that doesn't finish a
+ * command counts on its own.
  */
 export const commandFor = ({
   key,
   ctrlKey,
-  isAwaitingG,
+  awaiting,
 }: {
   key: string;
   ctrlKey: boolean;
-  isAwaitingG: boolean;
+  awaiting?: Prefix | undefined;
 }): Command | undefined => {
   if (ctrlKey) return WITH_CTRL[key];
-  return (isAwaitingG ? AFTER_G[key] : undefined) ?? KEYS[key];
+  return (awaiting === undefined ? undefined : AFTER_PREFIX[awaiting][key]) ?? KEYS[key];
 };
 
-/** Whether a held key's repeats do the command again: a page down is one page per press. */
-export const repeats = (command: Command) => command.type !== 'page';
+/** Whether a held key's repeats do the command again: a page down or site toggle is once per press. */
+export const repeats = (command: Command) =>
+  command.type !== 'page' && command.type !== 'toggle-site';
 
 const MODIFIERS = new Set(['Shift', 'Control', 'Alt', 'Meta', 'CapsLock', 'AltGraph']);
 
