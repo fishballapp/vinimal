@@ -17,6 +17,7 @@
     "./hints/labels": "./src/hints/labels.ts",
     "./hints/targets": "./src/hints/targets.ts",
     "./ui/overlay/hint-layer": "./src/ui/overlay/hint-layer.ts",
+    "./ui/overlay/toast": "./src/ui/overlay/toast.ts",
     "./ui/overlay/overlay.css": "./src/ui/overlay/overlay.css",
     "./licence/stopped": "./src/licence/stopped.ts",
     "./site": "./src/site.ts",
