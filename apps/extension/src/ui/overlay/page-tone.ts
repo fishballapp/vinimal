@@ -25,9 +25,12 @@ const luminanceOf = ({ red, green, blue }: { red: number; green: number; blue: n
  * Whether the page is light or dark behind Vinimal's overlay: the root's background, else the
  * body's, else the canvas, which is dark only where the page opts into a dark scheme and the
  * system is dark. A page painted by an image or a full-size child reads as its colour underneath.
+ * `elements` are where to read the background, for a page drawn inside another (a promo film's).
  */
-export const pageTone = (): 'light' | 'dark' => {
-  const backgrounds = [document.documentElement, document.body]
+export const pageTone = (
+  elements: readonly (Element | null)[] = [document.documentElement, document.body],
+): 'light' | 'dark' => {
+  const backgrounds = elements
     .filter(element => element !== null)
     .map(element => channelsOf(getComputedStyle(element).backgroundColor));
   const painted = backgrounds.find(color => color !== undefined && color.alpha > 0);

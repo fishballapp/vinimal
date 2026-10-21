@@ -30,8 +30,8 @@ const drop = (root: Document | ShadowRoot, sheet: CSSStyleSheet) => {
  * header), follows its corners, goes round each line of a link that wraps, and moves with the
  * element as the page scrolls. Outlines take no space, so the page's layout doesn't move.
  */
-export const createOutlines = () => {
-  const tone = pageTone();
+export const createOutlines = (pageElements?: readonly (Element | null)[]) => {
+  const tone = pageTone(pageElements);
   const sheet = new CSSStyleSheet();
   sheet.replaceSync(rule(tone, false));
   const roots = new Set<Document | ShadowRoot>();

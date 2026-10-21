@@ -1,6 +1,6 @@
 import { isHitAt } from '../../hints/targets';
 import { createOutlines } from './outlines';
-import { mount, unmount } from './overlay';
+import { mount as mountOverlay, unmount as unmountOverlay } from './overlay';
 
 const SVG = 'http://www.w3.org/2000/svg';
 
@@ -32,6 +32,9 @@ const capFor = (label: string) => {
   return { cap, letters };
 };
 
+/** How long the chosen cap stays down while the others leave, before the layer goes. */
+export const LEAVE_MS = 140;
+
 /** A hint as the layer draws it: on `shownBy`, at `corner` in its bounding box. */
 export type DrawnHint = { label: string; shownBy: Element; corner: { x: number; y: number } };
 
@@ -40,12 +43,29 @@ type Drawn = DrawnHint & ReturnType<typeof capFor> & { isInView: boolean };
 /**
  * The hints of one frame, drawn as keycaps on their (optionally outlined) targets. A cap's top-left
  * corner sits on its target's visible part's, as Vimium's hints do, and follows the target as the
- * page scrolls.
+ * page scrolls. By default the layer goes into Vinimal's overlay over the whole window; a page drawn
+ * inside another (a promo film's) passes where it goes, the element its tone is read from, and when
+ * a pressed layer leaves, since a film draws each frame at its own moment rather than on the clock.
  */
-export const createHintLayer = ({ showsOutlines }: { showsOutlines: boolean }) => {
+export const createHintLayer = ({
+  showsOutlines,
+  page,
+  mount = mountOverlay,
+  unmount = unmountOverlay,
+  scheduleLeave = leave => setTimeout(leave, LEAVE_MS),
+}: {
+  showsOutlines: boolean;
+  /** The element whose background the outlines are toned by, when it isn't the document. */
+  page?: Element;
+  mount?: (layer: Element) => void;
+  unmount?: (layer: Element) => void;
+  scheduleLeave?: (leave: () => void) => void;
+}) => {
   const layer = document.createElement('div');
   layer.className = 'hints';
-  const outlines = showsOutlines ? createOutlines() : undefined;
+  const outlines = showsOutlines
+    ? createOutlines(page === undefined ? undefined : [page])
+    : undefined;
   const drawn = new Map<string, Drawn>();
   let filter = { typed: '', isNewTab: false };
 
@@ -74,13 +94,17 @@ export const createHintLayer = ({ showsOutlines }: { showsOutlines: boolean }) =
         x < innerWidth &&
         y < innerHeight &&
         isHitAt(hint.shownBy, x + 2, y + 2));
-    hint.cap.style.left = `${x}px`;
-    hint.cap.style.top = `${y}px`;
+    // The caps are placed in the layer's own box: the window's in the overlay, else where it's mounted.
+    const origin = layer.getBoundingClientRect();
+    hint.cap.style.left = `${x - origin.left}px`;
+    hint.cap.style.top = `${y - origin.top}px`;
   };
 
   return {
     labels: () => [...drawn.keys()],
     add: (hints: DrawnHint[]) => {
+      // Mounted first, so the caps are placed in the box the layer has on the page.
+      if (!layer.isConnected && hints.length > 0) mount(layer);
       for (const hint of hints) {
         const added = { ...hint, ...capFor(hint.label), isInView: true };
         drawn.set(hint.label, added);
@@ -88,7 +112,6 @@ export const createHintLayer = ({ showsOutlines }: { showsOutlines: boolean }) =
         show(added);
         layer.append(added.cap);
       }
-      if (!layer.isConnected && drawn.size > 0) mount(layer);
     },
     /** Moves a hint onto its target's part in view now, after a recount. */
     move: ({ label, shownBy, corner }: DrawnHint) => {
@@ -129,10 +152,10 @@ export const createHintLayer = ({ showsOutlines }: { showsOutlines: boolean }) =
       }
       drawn.get(label)?.cap.classList.add('pressed');
       layer.classList.add('leaving');
-      setTimeout(() => {
+      scheduleLeave(() => {
         outlines?.remove();
         unmount(layer);
-      }, 140);
+      });
     },
     remove: () => {
       outlines?.remove();
