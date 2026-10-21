@@ -29,15 +29,15 @@ export const POLAR = {
   },
   production: {
     api: 'https://api.polar.sh',
-    organizationId: 'af3e0e60-236e-43cc-94e4-468e00c9f7b7',
+    organizationId: '3dbc4d35-ee97-45be-afa1-ed423bded0e0',
     benefitIds: {
-      oneYear: '78514f71-3716-4aaf-b96f-fe595e12272f',
-      supporter: '9c37a0a1-7fd7-4361-a27f-27203968457d',
+      oneYear: 'c519b81d-ec2b-41dc-b0df-7919eb705d12',
+      supporter: '56447e33-b0a4-43ba-9d16-1bbb679a487f',
     },
     checkoutUrls: {
-      oneYear: 'https://buy.polar.sh/polar_cl_9shwZoqlpZrfoTtfwwNSxwYZ8SsdhH3HT1MLn4a3swK',
-      supporter: 'https://buy.polar.sh/polar_cl_fiKCcnDbYF9LFNxbYApNgjwPiQorzN6qWDAF31yVZqB',
+      oneYear: 'https://buy.polar.sh/polar_cl_kqcZkBTjBg4VpCOqCAgwVnd6a5Xi4lHjMoaip4KyttS',
+      supporter: 'https://buy.polar.sh/polar_cl_FTvDakwyWfacLAP0oRcJYmpfBHgWW7tXReEMY4ZWfzb',
     },
-    portalUrl: 'https://polar.sh/fishball-ltd/portal',
+    portalUrl: 'https://polar.sh/vinimal/portal',
   },
 } as const satisfies Record<'sandbox' | 'production', PolarConfig>;
