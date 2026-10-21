@@ -1,6 +1,6 @@
 # Vinimal
 
-**The few Vimium keys you actually use, made to look good.** A Chrome extension for browsing with
+**Vimium, cleaned up.** A Chrome extension for browsing with
 the keyboard, minimally configurable.
 
 | Keys | Does |
