@@ -1,3 +1,4 @@
+import { createAsyncQueue } from '@fishballapps/utils';
 import { isTabDeclaredOff } from '../declaration';
 import { isSiteDisabled, setSiteDisabled, siteName, siteOf } from '../sites';
 import { type IconState, iconPaths } from './icon-paths';
@@ -34,21 +35,25 @@ export const siteOfTab = async (tabId: number) => {
   return siteOf(tab?.url, { isFileAccessAllowed });
 };
 
+/** One toggle at a time, so back-to-back `ZZ`s or clicks each read what the one before wrote. */
+const enqueueToggle = createAsyncQueue();
+
 /**
  * Toggles Vinimal on or off for `tabId`'s site (used by the toolbar icon and `ZZ`), returning the
  * site's new state, or `undefined` when the page declares Vinimal off or Vinimal can't run there.
  */
-export const toggleTabSite = async (
+export const toggleTabSite = (
   tabId: number,
-): Promise<{ hostname: string; isEnabled: boolean } | undefined> => {
-  // A page that declares Vinimal off stays off: a toggle neither turns it on nor changes the list.
-  if (await isTabDeclaredOff(tabId)) return undefined;
-  const site = await siteOfTab(tabId);
-  if (site === undefined) return undefined;
-  const isDisabled = !(await isSiteDisabled(site.hostname));
-  await setSiteDisabled(site.hostname, isDisabled);
-  return { hostname: site.hostname, isEnabled: !isDisabled };
-};
+): Promise<{ hostname: string; isEnabled: boolean } | undefined> =>
+  enqueueToggle(async () => {
+    // A page that declares Vinimal off stays off: a toggle neither turns it on nor changes the list.
+    if (await isTabDeclaredOff(tabId)) return undefined;
+    const site = await siteOfTab(tabId);
+    if (site === undefined) return undefined;
+    const isDisabled = !(await isSiteDisabled(site.hostname));
+    await setSiteDisabled(site.hostname, isDisabled);
+    return { hostname: site.hostname, isEnabled: !isDisabled };
+  });
 
 /** Sets a tab's icon and tooltip to the tab's state: see `iconStateOf`. */
 export const showIconState = async (tabId: number) => {

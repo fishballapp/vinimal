@@ -92,6 +92,15 @@ describe('toggleTabSite', () => {
     expect(await isSiteDisabled('mail.google.com')).toBe(false);
   });
 
+  it('serialises two toggles fired at once so they end up back where they started', async () => {
+    stubChrome({ 1: 'https://mail.google.com/mail/u/0/' });
+    expect(await Promise.all([toggleTabSite(1), toggleTabSite(1)])).toEqual([
+      { hostname: 'mail.google.com', isEnabled: false },
+      { hostname: 'mail.google.com', isEnabled: true },
+    ]);
+    expect(await isSiteDisabled('mail.google.com')).toBe(false);
+  });
+
   it('does nothing on a page that declares Vinimal off, leaving the disabled list untouched', async () => {
     stubChrome({ 1: 'https://vinimal.fishball.app/' });
     await setTabDeclaration(1, { documentId: 'doc-1', isOff: true });
