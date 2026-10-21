@@ -1,4 +1,4 @@
-import { cn } from '@fishballapps/cn';
+import { cn } from 'cn';
 import type { ComponentProps } from 'react';
 
 const VARIANTS = {

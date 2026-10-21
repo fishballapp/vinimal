@@ -1,4 +1,4 @@
-import { cn } from '@fishballapps/cn';
+import { cn } from 'cn';
 import type { CSSProperties, ReactNode } from 'react';
 
 export type Finger = 'index' | 'middle' | 'ring' | 'pinky';

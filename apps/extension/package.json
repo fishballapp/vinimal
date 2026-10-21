@@ -35,9 +35,9 @@
     "check:effect": "effect-tsgo diagnostics --project tsconfig.json --format text"
   },
   "dependencies": {
-    "@fishballapps/cn": "workspace:*",
     "@fishballapps/extension-licence": "workspace:*",
     "@fishballapps/utils": "workspace:*",
+    "cn": "catalog:",
     "effect": "catalog:",
     "react": "catalog:web",
     "react-dom": "catalog:web"
