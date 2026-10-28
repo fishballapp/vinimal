@@ -21,11 +21,41 @@ const MASTERS: Record<IconDrawing, { small: string; large: string }> = {
   unavailable: { small: 'icon-unavailable-16.svg', large: 'icon-unavailable.svg' },
 };
 
+// Once the keys have stopped: a small index amber dot with a "!" in the bottom-right corner, cut
+// out of the key by a transparent ring. Chrome's own badge is too big. Not on `unavailable`, whose
+// prohibition sign sits in that corner.
+const STOPPED_CUTOUT = Buffer.from(
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><circle cx="25.5" cy="25.5" r="7.5"/></svg>',
+);
+const STOPPED_DOT = Buffer.from(
+  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+    <circle cx="25.5" cy="25.5" r="6" fill="#dd9314"/>
+    <rect x="24.6" y="21.6" width="1.8" height="5.2" rx="0.9" fill="#171b20"/>
+    <circle cx="25.5" cy="28.9" r="1" fill="#171b20"/>
+  </svg>`,
+);
+const withStoppedDot = async (icon: Buffer, size: number) =>
+  sharp(icon)
+    .composite([
+      { input: await render(STOPPED_CUTOUT, size, 32), blend: 'dest-out' },
+      { input: await render(STOPPED_DOT, size, 32) },
+    ])
+    .png()
+    .toBuffer();
+
 await Promise.all(
-  Object.entries(MASTERS).flatMap(([state, { small, large }]) => [
-    (async () => sharp(await render(await master(small), 16, 16)).toFile(out(`${state}-16`)))(),
-    (async () => sharp(await render(await master(large), 32, 128)).toFile(out(`${state}-32`)))(),
-  ]),
+  Object.entries(MASTERS).flatMap(([state, { small, large }]) =>
+    [
+      { size: 16, svg: small, viewBox: 16 },
+      { size: 32, svg: large, viewBox: 128 },
+    ].map(async ({ size, svg, viewBox }) => {
+      const icon = await render(await master(svg), size, viewBox);
+      await sharp(icon).toFile(out(`${state}-${size}`));
+      if (state !== 'unavailable') {
+        await sharp(await withStoppedDot(icon, size)).toFile(out(`${state}-stopped-${size}`));
+      }
+    }),
+  ),
 );
 
 const main = await master('icon.svg');

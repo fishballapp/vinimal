@@ -39,7 +39,10 @@ chrome.webNavigation.onCommitted.addListener(async ({ tabId, frameId, documentId
 });
 
 chrome.storage.onChanged.addListener((changes, area) => {
-  if (area === 'sync' && hostnamesIn(changes).length > 0) void showIconStateEverywhere();
+  const isIconChange =
+    (area === 'sync' && hostnamesIn(changes).length > 0) ||
+    (area === 'local' && ('licence' in changes || 'installedAt' in changes));
+  if (isIconChange) void showIconStateEverywhere();
 });
 
 /**
@@ -162,12 +165,14 @@ const switchTab = async ({ id, windowId }: chrome.tabs.Tab, direction: 1 | -1) =
 const isOpenableUrl = (url: string) =>
   ['http:', 'https:', 'file:'].includes(URL.parse(url)?.protocol ?? '');
 
-// --- The licence: an hourly alarm asks Polar once a day.
+// --- The licence: an hourly alarm asks Polar once a day, and marks the icon once the trial runs out.
 
 const licence = createLicenceWorker(licenceServer);
 
 chrome.alarms.onAlarm.addListener(({ name }) => {
-  if (name === LICENCE_ALARM) void licence.check();
+  if (name !== LICENCE_ALARM) return;
+  void licence.check();
+  void showIconStateEverywhere();
 });
 
 /**

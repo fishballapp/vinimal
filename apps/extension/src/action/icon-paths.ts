@@ -11,8 +11,13 @@ const DRAWINGS: Record<IconState, IconDrawing> = {
   'declared-off': 'off',
 };
 
-/** The toolbar sizes of one state's icon: 16 px, and 32 px for 2× screens. */
-export const iconPaths = (state: IconState) => ({
-  16: `icons/${DRAWINGS[state]}-16.png`,
-  32: `icons/${DRAWINGS[state]}-32.png`,
-});
+/**
+ * The toolbar sizes of one state's icon: 16 px, and 32 px for 2× screens. Once the keys have
+ * stopped, the key carries a small amber "!" in its corner; the key that can't run has its
+ * prohibition sign there already.
+ */
+export const iconPaths = (state: IconState, isStopped = false) => {
+  const drawing = DRAWINGS[state];
+  const name = isStopped && drawing !== 'unavailable' ? `${drawing}-stopped` : drawing;
+  return { 16: `icons/${name}-16.png`, 32: `icons/${name}-32.png` };
+};

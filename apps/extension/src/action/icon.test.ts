@@ -44,6 +44,12 @@ describe('iconPaths', () => {
   it('draws a site that declares Vinimal off with the disabled key', () => {
     expect(iconPaths('declared-off')).toEqual(iconPaths('off'));
   });
+
+  it('marks a stopped key, but not the one that can’t run', () => {
+    expect(iconPaths('on', true)[32]).toBe('icons/on-stopped-32.png');
+    expect(iconPaths('declared-off', true)).toEqual(iconPaths('off', true));
+    expect(iconPaths('unavailable', true)).toEqual(iconPaths('unavailable'));
+  });
 });
 
 describe('toggleTabSite', () => {

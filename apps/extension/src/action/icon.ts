@@ -1,5 +1,7 @@
+import { loadLicensing } from '@fishballapps/extension-licence/store';
 import { createAsyncQueue } from '@fishballapps/utils';
 import { isTabDeclaredOff } from '../declaration';
+import { stoppedReason } from '../licence/stopped';
 import { isSiteDisabled, setSiteDisabled, siteName, siteOf } from '../sites';
 import { type IconState, iconPaths } from './icon-paths';
 
@@ -55,9 +57,11 @@ export const toggleTabSite = (
     return { hostname: site.hostname, isEnabled: !isDisabled };
   });
 
-/** Sets a tab's icon and tooltip to the tab's state: see `iconStateOf`. */
+/** Sets a tab's icon and tooltip to the tab's state (see `iconStateOf`), marked once the keys stop. */
 export const showIconState = async (tabId: number) => {
   const site = await siteOfTab(tabId);
+  const now = Date.now();
+  const isStopped = stoppedReason({ ...(await loadLicensing(now)), now }) !== undefined;
   const state = iconStateOf({
     site,
     isDeclaredOff: await isTabDeclaredOff(tabId),
@@ -65,7 +69,7 @@ export const showIconState = async (tabId: number) => {
   });
   // The tab may close between the read and the write.
   await Promise.all([
-    chrome.action.setIcon({ tabId, path: iconPaths(state) }),
+    chrome.action.setIcon({ tabId, path: iconPaths(state, isStopped) }),
     chrome.action.setTitle({ tabId, title: TITLES[state](site?.hostname ?? '') }),
   ]).catch(() => undefined);
 };
