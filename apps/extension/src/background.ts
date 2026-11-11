@@ -1,9 +1,9 @@
-import { recordInstall } from '@fishballapps/extension-licence/store';
+import { recordInstall } from '@internal/extension-licence/store';
 import {
   createLicenceWorker,
   LICENCE_ALARM,
   startLicenceAlarm,
-} from '@fishballapps/extension-licence/worker';
+} from '@internal/extension-licence/worker';
 import { showIconState, showIconStateEverywhere, siteOfTab, toggleTabSite } from './action/icon';
 import { forgetOtherDocuments, forgetTab, setTabDeclaration } from './declaration';
 import { createLabelPool, type LabelPool } from './hints/labels';

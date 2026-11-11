@@ -1,4 +1,4 @@
-import type { Licence } from '@fishballapps/extension-licence/entitlement';
+import type { Licence } from '@internal/extension-licence/entitlement';
 import { describe, expect, it } from 'vitest';
 import { stoppedReason } from './stopped';
 

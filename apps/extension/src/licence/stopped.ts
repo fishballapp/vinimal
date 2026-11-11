@@ -2,7 +2,7 @@ import {
   type Entitlement,
   entitlementOf,
   type Licence,
-} from '@fishballapps/extension-licence/entitlement';
+} from '@internal/extension-licence/entitlement';
 
 /** Why the keys have stopped. A One year key running out is `expired`, said apart from the rest. */
 export type StoppedReason = Exclude<Entitlement['status'], 'trial' | 'licensed'> | 'expired';

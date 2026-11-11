@@ -1,4 +1,4 @@
-import type { Validation } from '@fishballapps/extension-licence/polar';
+import type { Validation } from '@internal/extension-licence/polar';
 
 /** The extension's three pages, the options page (Keys) and its two tabs. */
 export const PAGES = {

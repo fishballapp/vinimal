@@ -1,5 +1,5 @@
 import { readdirSync } from 'node:fs';
-import { stripHtmlComments } from '@fishballapps/vite-plugins/strip-html-comments';
+import { stripHtmlComments } from '@internal/vite-plugins/strip-html-comments';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { build, defineConfig, type Plugin } from 'vite';

@@ -1,8 +1,8 @@
 import '../styles/global.css';
-import { entitlementOf, type Licence } from '@fishballapps/extension-licence/entitlement';
-import type { Validation } from '@fishballapps/extension-licence/polar';
-import { loadLicensing } from '@fishballapps/extension-licence/store';
-import { type Currency, formatLocalPrice } from '@fishballapps/utils';
+import { entitlementOf, type Licence } from '@internal/extension-licence/entitlement';
+import type { Validation } from '@internal/extension-licence/polar';
+import { loadLicensing } from '@internal/extension-licence/store';
+import { type Currency, formatLocalPrice } from '@internal/utils';
 import { type ReactNode, useState } from 'react';
 import { PRICES, polar } from '../../licence/polar';
 import { STOPPED_COPY, stoppedReason } from '../../licence/stopped';

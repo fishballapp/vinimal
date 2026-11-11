@@ -1,4 +1,4 @@
-import { loadLicensing } from '@fishballapps/extension-licence/store';
+import { loadLicensing } from '@internal/extension-licence/store';
 import * as Option from 'effect/Option';
 import * as Schema from 'effect/Schema';
 import { stoppedReason } from './licence/stopped';

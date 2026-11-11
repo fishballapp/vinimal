@@ -236,10 +236,10 @@ importers:
 
   apps/extension:
     dependencies:
-      '@fishballapps/extension-licence':
+      '@internal/extension-licence':
         specifier: workspace:*
         version: link:../../internal/extension-licence
-      '@fishballapps/utils':
+      '@internal/utils':
         specifier: workspace:*
         version: link:../../internal/utils
       cn:
@@ -255,7 +255,7 @@ importers:
         specifier: catalog:web
         version: 19.3.0(react@19.3.0)
     devDependencies:
-      '@fishballapps/vite-plugins':
+      '@internal/vite-plugins':
         specifier: workspace:*
         version: link:../../internal/vite-plugins
       '@tailwindcss/vite':
@@ -291,7 +291,7 @@ importers:
 
   internal/extension-licence:
     dependencies:
-      '@fishballapps/utils':
+      '@internal/utils':
         specifier: workspace:*
         version: link:../utils
       effect:

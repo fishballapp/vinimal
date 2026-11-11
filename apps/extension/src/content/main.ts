@@ -1,4 +1,4 @@
-import { loadLicensing } from '@fishballapps/extension-licence/store';
+import { loadLicensing } from '@internal/extension-licence/store';
 import { isDeclaredOff } from '../declaration';
 import { createHintFrame } from '../hints/frame';
 import { type HintSession, startHintSession } from '../hints/session';

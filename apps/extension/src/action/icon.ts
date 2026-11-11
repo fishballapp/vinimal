@@ -1,5 +1,5 @@
-import { loadLicensing } from '@fishballapps/extension-licence/store';
-import { createAsyncQueue } from '@fishballapps/utils';
+import { loadLicensing } from '@internal/extension-licence/store';
+import { createAsyncQueue } from '@internal/utils';
 import { isTabDeclaredOff } from '../declaration';
 import { stoppedReason } from '../licence/stopped';
 import { isSiteDisabled, setSiteDisabled, siteName, siteOf } from '../sites';
