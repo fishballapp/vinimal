@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { stoppedReason } from './stopped';
 
 const DAY = 24 * 60 * 60 * 1000;
-const installedAt = Date.UTC(2026, 9, 1);
+const installedAt = Temporal.Instant.from('2026-10-01T00:00:00Z').epochMilliseconds;
 const now = installedAt + 400 * DAY;
 const licence = (overrides: Partial<Licence>): Licence => ({
   key: 'VINIMAL-1',

@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { answerSite } from './site-status';
 
 const DAY = 24 * 60 * 60 * 1000;
-const now = Date.UTC(2026, 9, 16);
+const now = Temporal.Instant.from('2026-10-16T00:00:00Z').epochMilliseconds;
 const site = { origin: 'https://vinimal.fishball.app' };
 const release = { allowsLocalhost: false, now };
 
