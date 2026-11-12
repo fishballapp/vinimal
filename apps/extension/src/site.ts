@@ -1,10 +1,14 @@
 /**
- * Vinimal's own site, vinimal.fishball.app: the pages allowed to ask the extension something
+ * Vinimal's own site, vinimal.fsh.ba: the pages allowed to ask the extension something
  * (`externally_connectable`), and the IDs it finds the extension by. No imports, so the build's
  * config can read it too.
  */
 
-const SITE_ORIGIN = 'https://vinimal.fishball.app';
+/**
+ * The site's hosts: its own, and vinimal.fishball.app, which an installed extension of an older
+ * build knows it by and which still serves the site until the move to vinimal.fsh.ba is done.
+ */
+const SITE_ORIGINS: readonly string[] = ['https://vinimal.fsh.ba', 'https://vinimal.fishball.app'];
 
 /** The store's item, and every other build, which carries `DEV_PUBLIC_KEY` for a fixed ID. */
 export const EXTENSION_IDS = {
@@ -22,7 +26,7 @@ export const DEV_PUBLIC_KEY =
 
 /** The pages that may ask: the site, and in a build that isn't a release, the site's dev server. */
 export const siteMatches = ({ allowsLocalhost }: { allowsLocalhost: boolean }) => [
-  `${SITE_ORIGIN}/*`,
+  ...SITE_ORIGINS.map(origin => `${origin}/*`),
   ...(allowsLocalhost ? ['http://localhost/*'] : []),
 ];
 
@@ -33,7 +37,7 @@ export const siteHostnameOf = (
 ) => {
   const url = URL.parse(origin ?? '');
   if (url === null) return undefined;
-  if (url.origin === SITE_ORIGIN) return url.hostname;
+  if (SITE_ORIGINS.includes(url.origin)) return url.hostname;
   return allowsLocalhost && url.protocol === 'http:' && url.hostname === 'localhost'
     ? url.hostname
     : undefined;

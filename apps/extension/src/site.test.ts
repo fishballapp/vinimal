@@ -6,10 +6,18 @@ const release = { allowsLocalhost: false };
 const dev = { allowsLocalhost: true };
 
 describe('siteHostnameOf', () => {
-  it('is the site’s hostname, only for the site itself', () => {
+  it('is the site’s hostname, on either of its hosts', () => {
+    expect(siteHostnameOf('https://vinimal.fsh.ba', release)).toBe('vinimal.fsh.ba');
     expect(siteHostnameOf('https://vinimal.fishball.app', release)).toBe('vinimal.fishball.app');
+  });
+
+  it('is nothing for any other page', () => {
     for (const origin of [
       undefined,
+      'http://vinimal.fsh.ba',
+      'https://evil.vinimal.fsh.ba',
+      'https://vinimal.fsh.ba.evil.com',
+      'https://fsh.ba',
       'http://vinimal.fishball.app',
       'https://evil.vinimal.fishball.app',
       'https://vinimal.fishball.app.evil.com',
@@ -29,8 +37,15 @@ describe('siteHostnameOf', () => {
 
 describe('siteMatches', () => {
   it('names localhost only outside a release', () => {
-    expect(siteMatches(release)).toEqual(['https://vinimal.fishball.app/*']);
-    expect(siteMatches(dev)).toEqual(['https://vinimal.fishball.app/*', 'http://localhost/*']);
+    expect(siteMatches(release)).toEqual([
+      'https://vinimal.fsh.ba/*',
+      'https://vinimal.fishball.app/*',
+    ]);
+    expect(siteMatches(dev)).toEqual([
+      'https://vinimal.fsh.ba/*',
+      'https://vinimal.fishball.app/*',
+      'http://localhost/*',
+    ]);
   });
 });
 

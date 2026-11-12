@@ -37,8 +37,9 @@ yearly from $5 / £5 / €5. Licensed under [GPL-3.0](LICENSE).
 - `storage` (your disabled sites and licence),
   `alarms` (the daily licence check), `webNavigation` (finding a page's frames so labels reach into
   them) and `scripting` (starting Vinimal in the tabs already open when it's installed or updated).
-- Vinimal's site, vinimal.fishball.app, may ask whether Vinimal is on there, so it can say whose
-  keys it's answering. No other page can ask, and nothing else is answered.
+- Vinimal's site, vinimal.fsh.ba (or its earlier address, vinimal.fishball.app), may ask whether
+  Vinimal is on there, so it can say whose keys it's answering. No other page can ask, and nothing
+  else is answered.
 
 ## For site owners
 

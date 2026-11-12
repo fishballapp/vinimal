@@ -23,6 +23,17 @@ describe('answerSite', () => {
     expect(await answerSite({ type: 'status' }, site, release)).toEqual({ isEnabled: true });
   });
 
+  it('answers from vinimal.fsh.ba too, keeping each host’s own on and off', async () => {
+    const newSite = { origin: 'https://vinimal.fsh.ba' };
+    expect(await answerSite({ type: 'status' }, newSite, release)).toEqual({ isEnabled: true });
+    stubStorage({
+      sync: { 'disabled:vinimal.fsh.ba': now - DAY },
+      local: { installedAt: now - DAY },
+    });
+    expect(await answerSite({ type: 'status' }, newSite, release)).toEqual({ isEnabled: false });
+    expect(await answerSite({ type: 'status' }, site, release)).toEqual({ isEnabled: true });
+  });
+
   it('says it’s off where the toolbar icon switched the site off', async () => {
     stubStorage({
       sync: { 'disabled:vinimal.fishball.app': now - DAY },
