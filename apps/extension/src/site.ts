@@ -5,8 +5,8 @@
  */
 
 /**
- * The site's hosts: its own, and vinimal.fishball.app, which an installed extension of an older
- * build knows it by and which still serves the site until the move to vinimal.fsh.ba is done.
+ * The site's hosts: its own, and vinimal.fishball.app, where the site was first and which now
+ * redirects to it.
  */
 const SITE_ORIGINS: readonly string[] = ['https://vinimal.fsh.ba', 'https://vinimal.fishball.app'];
 
