@@ -23,10 +23,7 @@ const LicencePage = () => {
   const entitlement = entitlementOf({ ...licensing, now });
   return (
     <>
-      <PageTitle
-        title="Licence"
-        lede={`Vinimal is free to try for 14 days, then needs a licence key. A key can cost nothing: you pay what you want, from ${price(PRICES.oneYear.minimum)}.`}
-      />
+      <PageTitle title="Licence" />
       <Status
         entitlement={entitlement}
         licence={licensing.licence}
@@ -66,7 +63,7 @@ const Status = ({
         <h2 className="font-semibold">
           Free trial: {entitlement.daysLeft === 1 ? '1 day' : `${entitlement.daysLeft} days`} left
         </h2>
-        <p className="text-ink-muted">Then Vinimal’s keys stop until you add a licence key.</p>
+        <p className="text-ink-muted">Then the keys stop until you add a licence key.</p>
       </section>
     );
   }
@@ -80,7 +77,7 @@ const Status = ({
         </h2>
         <p className="text-ink-muted">
           {expiresAt === undefined
-            ? 'Your key lasts as long as your support. Thank you.'
+            ? 'Renews yearly.'
             : `Your key lasts until ${DATE.format(expiresAt)}. Then get another here, free if you like.`}
         </p>
       </div>
@@ -190,7 +187,6 @@ const KeyForm = () => {
           {state === 'checking' ? 'Checking…' : 'Add key'}
         </Button>
       </div>
-      {state === 'granted' && <p role="status">Thanks. Vinimal’s keys are on.</p>}
       {state !== 'idle' && state !== 'checking' && state !== 'granted' && (
         <p role="alert" className="text-destructive">
           {ACTIVATION_ERRORS[state]}

@@ -74,9 +74,9 @@ export const renderPage = (page: Page, content: ReactNode) => {
   );
 };
 
-export const PageTitle = ({ title, lede }: { title: string; lede: ReactNode }) => (
+export const PageTitle = ({ title, lede }: { title: string; lede?: ReactNode }) => (
   <div className="flex flex-col gap-1.5">
     <h1 className="text-2xl font-semibold tracking-[-0.02em] text-balance">{title}</h1>
-    <p className="max-w-[60ch] text-ink-muted">{lede}</p>
+    {lede !== undefined && <p className="max-w-[60ch] text-ink-muted">{lede}</p>}
   </div>
 );

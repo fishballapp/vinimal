@@ -193,7 +193,6 @@ const KeysPage = () => (
     </table>
     <ul className="flex list-none flex-col gap-1 text-ink-muted">
       <li>Keys in a text field go to the page.</li>
-      <li>Click the toolbar icon or press ZZ to disable Vinimal on a site.</li>
     </ul>
   </>
 );
